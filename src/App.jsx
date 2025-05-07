@@ -17,7 +17,7 @@ import './styles.css';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
-import StreesApp from './pages/StressApp';
+import MindfulnessApp from './pages/MindfulnessApp';
 
 // Componente da página inicial
 function HomePage() {
@@ -61,7 +61,7 @@ function HomePage() {
       highlight: true,
     },
     {
-      name: "Empresarial",
+      name: "Enterprise",
       price: "Personalizado",
       description: "Soluções personalizadas para sua equipe",
       features: [
@@ -349,7 +349,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
-          <Route path="/mind-desk" element={<StreesApp />} />
+          <Route path="/mind-desk" element={<MindfulnessApp />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 

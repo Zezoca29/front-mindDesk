@@ -1,0 +1,438 @@
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.3s ease;
+  }
+  
+  body {
+    background-color: #ADDAC8;  /* Light teal background similar to the image */
+    color: #2A5B5F;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+  
+  /* App Container */
+  .app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background-color: #ADDAC8;
+    position: relative;
+  }
+  
+  /* Header */
+  .app-header {
+    background-color: #478B89;
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+  }
+  
+  .app-header h1 {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ADDAC8;
+  }
+  
+  /* Section Title */
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2A5B5F;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Exercise Container */
+  .exercise-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+  
+  /* Breathing Exercise */
+  .breathing-wrapper {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin: 1rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .breathing-circle {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background-color: #F5F5F5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(42, 91, 95, 0.2);
+    position: relative;
+    transition: transform 1s ease, box-shadow 1s ease;
+  }
+  
+  .breath-text {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2A5B5F;
+    text-align: center;
+    transition: opacity 0.5s ease;
+  }
+  
+  .breath-count {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+  }
+  
+  /* Breathing Animations */
+  .inhale-animation {
+    animation: inhale 4s infinite;
+    border: 2px solid #76B8A7;
+  }
+  
+  .hold-animation {
+    animation: hold 4s infinite;
+    border: 2px solid #4C99AB;
+  }
+  
+  .exhale-animation {
+    animation: exhale 6s infinite;
+    border: 2px solid #2A5B5F;
+  }
+  
+  @keyframes inhale {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 20px rgba(42, 91, 95, 0.2);
+    }
+    100% {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(42, 91, 95, 0.3);
+    }
+  }
+  
+  @keyframes hold {
+    0%, 100% {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(42, 91, 95, 0.3);
+    }
+  }
+  
+  @keyframes exhale {
+    0% {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(42, 91, 95, 0.3);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 20px rgba(42, 91, 95, 0.2);
+    }
+  }
+  
+  /* Instruction Text */
+  .instruction-text {
+    margin: 1.5rem 0;
+    font-size: 1rem;
+    text-align: center;
+    color: #2A5B5F;
+    font-weight: 500;
+    max-width: 90%;
+  }
+  
+  /* Action Buttons */
+  .action-button {
+    background-color: #478B89;
+    color: white;
+    padding: 0.8rem 2rem;
+    border-radius: 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(71, 139, 137, 0.3);
+    margin-top: 1rem;
+    min-width: 120px;
+    text-align: center;
+  }
+  
+  .action-button:hover {
+    background-color: #367774;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(71, 139, 137, 0.4);
+  }
+  
+  .action-button:active {
+    transform: translateY(0);
+  }
+  
+  .start-button {
+    margin-top: 1.5rem;
+  }
+  
+  /* Feature Cards */
+  .feature-card {
+    background-color: #F5F5F5;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 8px 16px rgba(42, 91, 95, 0.1);
+  }
+  
+  .feature-icon {
+    background-color: #D9F3EB;
+    color: #2A5B5F;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2A5B5F;
+    margin-bottom: 1rem;
+  }
+  
+  /* Feature Grid */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #F5F5F5;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    width: 100%;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+  
+  .feature-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .feature-grid-item.active {
+    background-color: #D9F3EB;
+    color: #2A5B5F;
+    font-weight: 600;
+  }
+  
+  .feature-grid-icon {
+    color: #2A5B5F;
+    margin-bottom: 0.5rem;
+  }
+  
+  .feature-grid-item span {
+    font-size: 0.9rem;
+  }
+  
+  /* Meditation Options */
+  .meditation-container, .relaxation-container, .journal-container {
+    width: 100%;
+  }
+  
+  .meditation-options, .technique-list {
+    margin-top: 1rem;
+  }
+  
+  .meditation-option, .technique-item {
+    background-color: #F5F5F5;
+    border-radius: 0.8rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 8px rgba(42, 91, 95, 0.1);
+  }
+  
+  .meditation-option h4, .technique-item h4 {
+    color: #2A5B5F;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .meditation-option p, .technique-item p {
+    color: #555;
+    font-size: 0.9rem;
+  }
+  
+  /* Journal */
+  .journal-entry-form {
+    width: 100%;
+    background-color: #F5F5F5;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 16px rgba(42, 91, 95, 0.1);
+  }
+  
+  .mood-selector {
+    margin-bottom: 1rem;
+  }
+  
+  .mood-selector h4 {
+    margin-bottom: 0.8rem;
+    color: #2A5B5F;
+  }
+  
+  .mood-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .mood-option {
+    background-color: #D9F3EB;
+    border-radius: 2rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  
+  .mood-option.selected {
+    background-color: #478B89;
+    color: white;
+  }
+  
+  .journal-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #D9F3EB;
+    border-radius: 0.5rem;
+    resize: vertical;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    outline: none;
+  }
+  
+  .journal-textarea:focus {
+    border-color: #478B89;
+    box-shadow: 0 0 0 2px rgba(71, 139, 137, 0.2);
+  }
+  
+  .journal-save-btn {
+    width: 100%;
+  }
+  
+  .journal-save-btn:disabled {
+    background-color: #B8D8D2;
+    cursor: not-allowed;
+  }
+  
+  .journal-entries {
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+  
+  .journal-entries h4 {
+    margin-bottom: 1rem;
+    color: #2A5B5F;
+    font-size: 1.1rem;
+  }
+  
+  .journal-entry {
+    background-color: #F5F5F5;
+    border-radius: 0.8rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 8px rgba(42, 91, 95, 0.1);
+  }
+  
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .entry-text {
+    color: #333;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .app-header h1 {
+      font-size: 1.6rem;
+    }
+    
+    .breathing-wrapper {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .breathing-circle {
+      width: 180px;
+      height: 180px;
+    }
+    
+    .breath-text {
+      font-size: 1.2rem;
+    }
+    
+    .breath-count {
+      font-size: 3.5rem;
+    }
+    
+    .feature-grid {
+      padding: 0.8rem;
+    }
+    
+    .feature-grid-item {
+      padding: 0.8rem;
+    }
+    
+    .feature-grid-icon {
+      transform: scale(0.9);
+    }
+    
+    .feature-grid-item span {
+      font-size: 0.8rem;
+    }
+  }
