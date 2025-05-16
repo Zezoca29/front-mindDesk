@@ -18,6 +18,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import MindfulnessApp from './pages/MindfulnessApp';
+import CadastroPremium from './pages/CadastroPremium';
 
 // Componente da página inicial
 function HomePage() {
@@ -59,7 +60,7 @@ function HomePage() {
       ],
       unavailable: [],
       buttonText: "Obter Premium",
-      buttonLink: "/cadastro",
+      buttonLink: "/cadastro-premium",
       highlight: true,
     },
     {
@@ -364,6 +365,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
+          <Route path="/cadastro-premium" element={<CadastroPremium />} />
           <Route path="/mind-desk" element={<MindfulnessApp />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
