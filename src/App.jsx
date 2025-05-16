@@ -28,7 +28,7 @@ function HomePage() {
       period: "para sempre",
       description: "Ferramentas essenciais para bem-estar mental",
       features: [
-        "Botão de Alívio de Estresse",
+        "Técnica de Respiração de 4 segundos",
         "Frases Motivacionais Diárias",
         "Recomendações de Livros",
       ],
@@ -40,6 +40,7 @@ function HomePage() {
         "Acesso à Comunidade",
       ],
       buttonText: "Cadastre-se Grátis",
+      buttonLink: "/cadastro",
       highlight: false,
     },
     {
@@ -58,6 +59,7 @@ function HomePage() {
       ],
       unavailable: [],
       buttonText: "Obter Premium",
+      buttonLink: "/cadastro",
       highlight: true,
     },
     {
@@ -75,6 +77,7 @@ function HomePage() {
       ],
       unavailable: [],
       buttonText: "Contatar Vendas",
+      buttonLink: "https://wa.me/11932214535",
       highlight: false,
     }
   ];
@@ -82,7 +85,7 @@ function HomePage() {
   const features = [
     {
       icon: <CheckCircle />,
-      title: "Botão de Alívio de Estresse",
+      title: "Técnica de Respiração de 4 segundos",
       description: "Acesse técnicas imediatas de alívio para ansiedade ou raiva com nosso botão de estresse de modo duplo."
     },
     {
@@ -266,11 +269,23 @@ function HomePage() {
                     ))}
                   </ul>
                 </div>
-                <button 
-                  className={`btn ${plan.highlight ? 'btn-primary' : 'btn-outline'} pricing-button`}
-                >
-                  {plan.buttonText}
-                </button>
+                {plan.buttonLink.startsWith('http') ? (
+                  <a 
+                    href={plan.buttonLink}
+                    className={`btn ${plan.highlight ? 'btn-primary' : 'btn-outline'} pricing-button`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {plan.buttonText}
+                  </a>
+                ) : (
+                  <Link 
+                    to={plan.buttonLink}
+                    className={`btn ${plan.highlight ? 'btn-primary' : 'btn-outline'} pricing-button`}
+                  >
+                    {plan.buttonText}
+                  </Link>
+                )}
               </div>
             ))}
           </div>
@@ -363,11 +378,11 @@ function App() {
                     Mind Desk
                   </div>
                   <div className="footer-social">
-                    <a href="#" className="social-link">
+                    <a href="https://instagram.com/pirandoins" target="_blank" rel="noopener noreferrer" className="social-link">
                       <span className="sr-only">Instagram</span>
                       <Instagram />
                     </a>
-                    <a href="#" className="social-link">
+                    <a href="https://wa.me/11932214535" target="_blank" rel="noopener noreferrer" className="social-link">
                       <span className="sr-only">WhatsApp</span>
                       <MessageCircle />
                     </a>
