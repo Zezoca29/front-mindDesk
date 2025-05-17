@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, CreditCard, AlertCircle } from 'lucide-react';
 import './CadastroPremium.css';
@@ -6,6 +6,8 @@ import './CadastroPremium.css';
 function CadastroPremium() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [mpReady, setMpReady] = useState(false);
+  const [cardForm, setCardForm] = useState(null);
   
   // Estados para os dados do usuário
   const [userData, setUserData] = useState({
@@ -15,17 +17,7 @@ function CadastroPremium() {
     confirmarSenha: '',
   });
   
-  // Estados para os dados de pagamento
-  const [paymentData, setPaymentData] = useState({
-    numeroCartao: '',
-    nomeCartao: '',
-    validade: '',
-    cvv: '',
-    cpf: '',
-    metodoPagamento: 'cartao', // cartao, pix, boleto
-  });
-  
-  // Estado para controlar erros
+  // Estados para controlar erros
   const [errors, setErrors] = useState({});
   
   // Estados para confirmação
@@ -33,15 +25,159 @@ function CadastroPremium() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [transactionId, setTransactionId] = useState(null);
 
+  // Inicializa o SDK do Mercado Pago
+  useEffect(() => {
+    // Carrega o script do Mercado Pago
+    const script = document.createElement('script');
+    script.src = "https://sdk.mercadopago.com/js/v2";
+    script.async = true;
+    script.onload = () => {
+      // Inicializa o Mercado Pago com a chave pública
+      // Em ambiente de produção, essa chave deve vir do backend por questões de segurança
+      const mp = new window.MercadoPago("TEST-fb3994de-05a6-4f3b-9189-e37d1428f9e9", {
+        locale: 'pt-BR'
+      });
+      
+      // Configura o formulário após o componente ser montado
+      setTimeout(() => {
+        if (document.getElementById('form-checkout__cardNumber')) {
+          initCardForm(mp);
+        }
+      }, 100);
+      
+      setMpReady(true);
+    };
+    
+    document.body.appendChild(script);
+    
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+  
+  // Inicializa o formulário de cartão quando o step for 2 e o MP estiver carregado
+  useEffect(() => {
+    if (step === 2 && mpReady && window.MercadoPago && !cardForm) {
+      // Verifica se o Mercado Pago está carregado e se os elementos do formulário existem
+      setTimeout(() => {
+        if (document.getElementById('form-checkout__cardNumber')) {
+          const mp = new window.MercadoPago("TEST-fb3994de-05a6-4f3b-9189-e37d1428f9e9", {
+            locale: 'pt-BR'
+          });
+          initCardForm(mp);
+        }
+      }, 100);
+    }
+  }, [step, mpReady]);
+  
+  // Inicializa o formulário de cartão
+  const initCardForm = (mp) => {
+    const cardFormInstance = mp.cardForm({
+      amount: "59.90",
+      iframe: true,
+      form: {
+        id: "form-checkout",
+        cardNumber: {
+          id: "form-checkout__cardNumber",
+          placeholder: "Número do cartão",
+        },
+        expirationDate: {
+          id: "form-checkout__expirationDate",
+          placeholder: "MM/YY",
+        },
+        securityCode: {
+          id: "form-checkout__securityCode",
+          placeholder: "Código de segurança",
+        },
+        cardholderName: {
+          id: "form-checkout__cardholderName",
+          placeholder: "Titular do cartão",
+        },
+        issuer: {
+          id: "form-checkout__issuer",
+          placeholder: "Banco emissor",
+        },
+        installments: {
+          id: "form-checkout__installments",
+          placeholder: "Parcelas",
+        },        
+        identificationType: {
+          id: "form-checkout__identificationType",
+          placeholder: "Tipo de documento",
+        },
+        identificationNumber: {
+          id: "form-checkout__identificationNumber",
+          placeholder: "Número do documento",
+        },
+        cardholderEmail: {
+          id: "form-checkout__cardholderEmail",
+          placeholder: "E-mail",
+        },
+      },
+      callbacks: {
+        onFormMounted: error => {
+          if (error) return console.warn("Form Mounted handling error: ", error);
+          console.log("Form mounted");
+        },
+        onSubmit: event => {
+          event.preventDefault();
+          setIsProcessing(true);
+          
+          const {
+            paymentMethodId: payment_method_id,
+            issuerId: issuer_id,
+            cardholderEmail: email,
+            amount,
+            token,
+            installments,
+            identificationNumber,
+            identificationType,
+          } = cardFormInstance.getCardFormData();
+          
+          // Em um ambiente real, você enviaria isso para seu backend
+          console.log("Payment data:", {
+            token,
+            issuer_id,
+            payment_method_id,
+            transaction_amount: Number(amount),
+            installments: Number(installments),
+            description: "Assinatura Mind Desk Premium",
+            payer: {
+              email,
+              identification: {
+                type: identificationType,
+                number: identificationNumber,
+              },
+            },
+          });
+          
+          // Simulando uma chamada para o backend
+          setTimeout(() => {
+            processPaymentResponse({ status: 'approved', id: 'MP' + Math.floor(Math.random() * 1000000) });
+          }, 2000);
+        },
+        onFetching: (resource) => {
+          console.log("Fetching resource: ", resource);
+          // Anima a barra de progresso
+          const progressBar = document.querySelector(".progress-bar");
+          if (progressBar) {
+            progressBar.removeAttribute("value");
+            return () => {
+              progressBar.setAttribute("value", "0");
+            };
+          }
+          return () => {};
+        }
+      },
+    });
+    
+    setCardForm(cardFormInstance);
+  };
+
   // Manipuladores de mudança de campos
   const handleUserDataChange = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handlePaymentDataChange = (e) => {
-    const { name, value } = e.target;
-    setPaymentData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Validação do primeiro passo
@@ -69,37 +205,10 @@ function CadastroPremium() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Validação do segundo passo
-  const validateStep2 = () => {
-    const newErrors = {};
-    
-    if (paymentData.metodoPagamento === 'cartao') {
-      if (!paymentData.numeroCartao.trim() || paymentData.numeroCartao.replace(/\s/g, '').length !== 16) {
-        newErrors.numeroCartao = 'Número de cartão inválido';
-      }
-      if (!paymentData.nomeCartao.trim()) newErrors.nomeCartao = 'Nome no cartão é obrigatório';
-      if (!paymentData.validade.trim() || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentData.validade)) {
-        newErrors.validade = 'Validade inválida (MM/AA)';
-      }
-      if (!paymentData.cvv.trim() || !/^\d{3,4}$/.test(paymentData.cvv)) {
-        newErrors.cvv = 'CVV inválido';
-      }
-    }
-    
-    if (!paymentData.cpf.trim() || !/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(paymentData.cpf)) {
-      newErrors.cpf = 'CPF inválido (000.000.000-00)';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   // Avançar para o próximo passo
   const nextStep = () => {
     if (step === 1 && validateStep1()) {
       setStep(2);
-    } else if (step === 2 && validateStep2()) {
-      processPayment();
     }
   };
 
@@ -108,69 +217,24 @@ function CadastroPremium() {
     if (step > 1) setStep(step - 1);
   };
 
-  // Processar o pagamento
-  const processPayment = async () => {
-    setIsProcessing(true);
+  // Processa a resposta do pagamento
+  const processPaymentResponse = (response) => {
+    setIsProcessing(false);
     
-    try {
-      // Simulação de chamada à API de pagamento
-      // Na implementação real, você faria uma chamada à API do seu gateway de pagamento
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulando uma resposta de sucesso
-      setTransactionId('TX' + Math.floor(Math.random() * 1000000));
+    if (response.status === 'approved' || response.status === 'in_process') {
+      // Pagamento aprovado ou em análise
+      setTransactionId(response.id);
       setIsSuccess(true);
       setStep(3);
-      
-      // Aqui você faria a requisição para o backend criar o usuário com status premium
-      // createPremiumUser({ ...userData, paymentInfo: { transactionId } });
-      
-    } catch (error) {
+    } else {
+      // Erro no pagamento
       setErrors({ payment: 'Erro ao processar pagamento. Tente novamente.' });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
   // Função para finalizar o cadastro e redirecionar para o app
   const finishSignup = () => {
     navigate('/mind-desk');
-  };
-
-  // Formatar número do cartão com espaços a cada 4 dígitos
-  const formatCardNumber = (value) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
-    const parts = [];
-    
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return value;
-    }
-  };
-
-  // Formatar CPF
-  const formatCPF = (value) => {
-    return value
-      .replace(/\D/g, '')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-      .replace(/(-\d{2})\d+?$/, '$1');
-  };
-  
-  // Formatar validade do cartão
-  const formatValidade = (value) => {
-    return value
-      .replace(/\D/g, '')
-      .replace(/(\d{2})(\d)/, '$1/$2')
-      .substring(0, 5);
   };
 
   return (
@@ -285,7 +349,7 @@ function CadastroPremium() {
           
           <button 
             onClick={nextStep}
-            className="btn btn-primary w-full"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
           >
             Continuar para pagamento
           </button>
@@ -303,171 +367,107 @@ function CadastroPremium() {
           
           <div className="payment-methods mb-6">
             <p className="mb-2 font-medium">Método de pagamento</p>
-            <div className="flex space-x-4">
-              <label className={`payment-method-option ${paymentData.metodoPagamento === 'cartao' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="metodoPagamento"
-                  value="cartao"
-                  checked={paymentData.metodoPagamento === 'cartao'}
-                  onChange={handlePaymentDataChange}
-                  className="sr-only"
-                />
+            <div className="flex items-center">
+              <div className="payment-method-option active">
                 <CreditCard size={20} />
                 <span>Cartão</span>
-              </label>
-              
-              <label className={`payment-method-option ${paymentData.metodoPagamento === 'pix' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="metodoPagamento"
-                  value="pix"
-                  checked={paymentData.metodoPagamento === 'pix'}
-                  onChange={handlePaymentDataChange}
-                  className="sr-only"
-                />
-                <span className="text-xl">PIX</span>
-              </label>
-              
-              <label className={`payment-method-option ${paymentData.metodoPagamento === 'boleto' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  name="metodoPagamento"
-                  value="boleto"
-                  checked={paymentData.metodoPagamento === 'boleto'}
-                  onChange={handlePaymentDataChange}
-                  className="sr-only"
-                />
-                <span>Boleto</span>
-              </label>
+              </div>
+              <span className="text-sm text-gray-500 ml-3">
+                Processado por Mercado Pago
+              </span>
             </div>
           </div>
           
-          {paymentData.metodoPagamento === 'cartao' && (
-            <>
-              <div className="form-group mb-4">
-                <label htmlFor="numeroCartao" className="block mb-1">Número do cartão</label>
-                <input
-                  type="text"
-                  id="numeroCartao"
-                  name="numeroCartao"
-                  value={paymentData.numeroCartao}
-                  onChange={(e) => {
-                    const formatted = formatCardNumber(e.target.value);
-                    setPaymentData((prev) => ({ ...prev, numeroCartao: formatted }));
-                  }}
-                  className={`form-input ${errors.numeroCartao ? 'error' : ''}`}
-                  placeholder="0000 0000 0000 0000"
-                  maxLength={19}
-                />
-                {errors.numeroCartao && <p className="error-message">{errors.numeroCartao}</p>}
+          <form id="form-checkout" className="mb-6">
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Número do cartão</label>
+              <div id="form-checkout__cardNumber" className="payment-form-field"></div>
+              {errors.cardNumber && <p className="error-message">{errors.cardNumber}</p>}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Data de validade</label>
+                <div id="form-checkout__expirationDate" className="payment-form-field"></div>
+                {errors.expirationDate && <p className="error-message">{errors.expirationDate}</p>}
               </div>
               
-              <div className="form-group mb-4">
-                <label htmlFor="nomeCartao" className="block mb-1">Nome no cartão</label>
-                <input
-                  type="text"
-                  id="nomeCartao"
-                  name="nomeCartao"
-                  value={paymentData.nomeCartao}
-                  onChange={handlePaymentDataChange}
-                  className={`form-input ${errors.nomeCartao ? 'error' : ''}`}
-                  placeholder="Como aparece no cartão"
-                />
-                {errors.nomeCartao && <p className="error-message">{errors.nomeCartao}</p>}
+              <div>
+                <label className="block text-sm font-medium mb-1">CVV</label>
+                <div id="form-checkout__securityCode" className="payment-form-field"></div>
+                {errors.securityCode && <p className="error-message">{errors.securityCode}</p>}
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="form-checkout__cardholderName" className="block text-sm font-medium mb-1">Nome no cartão</label>
+              <input 
+                type="text" 
+                id="form-checkout__cardholderName" 
+                className="form-input"
+                defaultValue={userData.nome}
+              />
+              {errors.cardholderName && <p className="error-message">{errors.cardholderName}</p>}
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="form-checkout__cardholderEmail" className="block text-sm font-medium mb-1">Email</label>
+              <input 
+                type="email" 
+                id="form-checkout__cardholderEmail" 
+                className="form-input"
+                defaultValue={userData.email}
+              />
+              {errors.cardholderEmail && <p className="error-message">{errors.cardholderEmail}</p>}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label htmlFor="form-checkout__identificationType" className="block text-sm font-medium mb-1">Tipo de documento</label>
+                <select id="form-checkout__identificationType" className="form-input"></select>
+                {errors.identificationType && <p className="error-message">{errors.identificationType}</p>}
               </div>
               
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="form-group">
-                  <label htmlFor="validade" className="block mb-1">Validade</label>
-                  <input
-                    type="text"
-                    id="validade"
-                    name="validade"
-                    value={paymentData.validade}
-                    onChange={(e) => {
-                      const formatted = formatValidade(e.target.value);
-                      setPaymentData((prev) => ({ ...prev, validade: formatted }));
-                    }}
-                    className={`form-input ${errors.validade ? 'error' : ''}`}
-                    placeholder="MM/AA"
-                    maxLength={5}
-                  />
-                  {errors.validade && <p className="error-message">{errors.validade}</p>}
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="cvv" className="block mb-1">CVV</label>
-                  <input
-                    type="text"
-                    id="cvv"
-                    name="cvv"
-                    value={paymentData.cvv}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '');
-                      setPaymentData((prev) => ({ ...prev, cvv: value }));
-                    }}
-                    className={`form-input ${errors.cvv ? 'error' : ''}`}
-                    placeholder="000"
-                    maxLength={4}
-                  />
-                  {errors.cvv && <p className="error-message">{errors.cvv}</p>}
-                </div>
-              </div>
-            </>
-          )}
-          
-          {paymentData.metodoPagamento === 'pix' && (
-            <div className="pix-instructions p-4 bg-gray-50 rounded-lg mb-4">
-              <p className="mb-2">Após confirmar, você receberá um QR code para pagamento via PIX.</p>
-              <div className="pix-placeholder flex justify-center items-center border-2 border-dashed border-gray-300 h-40 rounded-lg mb-4">
-                QR Code do PIX será gerado após confirmação
+              <div>
+                <label htmlFor="form-checkout__identificationNumber" className="block text-sm font-medium mb-1">Número do documento</label>
+                <input type="text" id="form-checkout__identificationNumber" className="form-input" />
+                {errors.identificationNumber && <p className="error-message">{errors.identificationNumber}</p>}
               </div>
             </div>
-          )}
-          
-          {paymentData.metodoPagamento === 'boleto' && (
-            <div className="boleto-instructions p-4 bg-gray-50 rounded-lg mb-4">
-              <p className="mb-2">O boleto será gerado após a confirmação e enviado para seu email.</p>
-              <p className="text-sm text-gray-600">Processamento leva até 3 dias úteis após o pagamento.</p>
+            
+            <div className="mb-4">
+              <label htmlFor="form-checkout__issuer" className="block text-sm font-medium mb-1">Banco emissor</label>
+              <select id="form-checkout__issuer" className="form-input"></select>
+              {errors.issuer && <p className="error-message">{errors.issuer}</p>}
             </div>
-          )}
-          
-          <div className="form-group mb-6">
-            <label htmlFor="cpf" className="block mb-1">CPF</label>
-            <input
-              type="text"
-              id="cpf"
-              name="cpf"
-              value={paymentData.cpf}
-              onChange={(e) => {
-                const formatted = formatCPF(e.target.value);
-                setPaymentData((prev) => ({ ...prev, cpf: formatted }));
-              }}
-              className={`form-input ${errors.cpf ? 'error' : ''}`}
-              placeholder="000.000.000-00"
-              maxLength={14}
-            />
-            {errors.cpf && <p className="error-message">{errors.cpf}</p>}
-          </div>
+            
+            <div className="mb-6">
+              <label htmlFor="form-checkout__installments" className="block text-sm font-medium mb-1">Parcelas</label>
+              <select id="form-checkout__installments" className="form-input"></select>
+              {errors.installments && <p className="error-message">{errors.installments}</p>}
+            </div>
 
-          {errors.payment && (
-            <div className="error-box mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
-              <AlertCircle size={18} className="text-red-500 mr-2 mt-0.5" />
-              <p className="text-red-700 text-sm">{errors.payment}</p>
-            </div>
-          )}
-          
-          <button 
-            onClick={nextStep}
-            disabled={isProcessing}
-            className="btn btn-primary w-full"
-          >
-            {isProcessing ? 'Processando...' : 'Finalizar pagamento'}
-          </button>
+            {errors.payment && (
+              <div className="error-box mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
+                <AlertCircle size={18} className="text-red-500 mr-2 mt-0.5" />
+                <p className="text-red-700 text-sm">{errors.payment}</p>
+              </div>
+            )}
+            
+            <button 
+              type="submit" 
+              id="form-checkout__submit"
+              disabled={isProcessing}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+            >
+              {isProcessing ? 'Processando...' : 'Finalizar pagamento'}
+            </button>
+            
+            <progress value="0" className="progress-bar w-full mt-4" style={{ display: isProcessing ? 'block' : 'none' }}>Carregando...</progress>
+          </form>
           
           <p className="text-center text-sm mt-4 text-gray-600">
-            Seus dados de pagamento são processados de forma segura e criptografada.
+            Seus dados de pagamento são processados de forma segura e criptografada pelo Mercado Pago.
           </p>
         </div>
       )}
@@ -503,7 +503,7 @@ function CadastroPremium() {
               
               <button 
                 onClick={finishSignup}
-                className="btn btn-primary w-full"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
               >
                 Acessar Mind Desk Premium
               </button>
@@ -526,7 +526,7 @@ function CadastroPremium() {
               
               <button 
                 onClick={() => setStep(2)}
-                className="btn btn-primary w-full"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
               >
                 Tentar novamente
               </button>
