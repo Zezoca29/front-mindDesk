@@ -24,6 +24,8 @@ function CadastroPremium() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [transactionId, setTransactionId] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [paymentMessage, setPaymentMessage] = useState('');
 
   // Inicializa o SDK do Mercado Pago
   useEffect(() => {
@@ -122,6 +124,9 @@ function CadastroPremium() {
         onSubmit: event => {
           event.preventDefault();
           setIsProcessing(true);
+          // Limpar erros anteriores
+          setErrors({});
+          setPaymentMessage('');
           
           const {
             paymentMethodId: payment_method_id,
@@ -161,26 +166,31 @@ function CadastroPremium() {
           };
           
           // Enviando os dados para a API
-          fetch('https://20b5-2804-7f0-7d80-7f2-ccbd-abcb-ab46-6fb3.ngrok-free.app/api/payments/create', {
+          fetch(' https://3e94-2804-7f0-7d80-293a-c02c-79b1-43a5-1d0e.ngrok-free.app/api/payments/create-with-signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGViNDAwYzYxZjJmYTFkNjU5OWI0NSIsImlhdCI6MTc0NzUwMTY0NSwiZXhwIjoxNzUwMDkzNjQ1fQ.cOo0jbXgsdKs8wzsRltNhiWbylPEVzJoB99cZJxSyCc'
+              //'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGViNDAwYzYxZjJmYTFkNjU5OWI0NSIsImlhdCI6MTc0NzUwMTY0NSwiZXhwIjoxNzUwMDkzNjQ1fQ.cOo0jbXgsdKs8wzsRltNhiWbylPEVzJoB99cZJxSyCc'
             },
             body: JSON.stringify(paymentData)
           })
-          .then(response => response.json())
+          .then(response => {
+            // Verificar status da resposta HTTP
+            if (!response.ok) {
+              throw new Error(`Erro na comunicação com o servidor: ${response.status}`);
+            }
+            return response.json();
+          })
           .then(data => {
             console.log('API response:', data);
-            processPaymentResponse({ 
-              status: data.status || 'approved', 
-              id: data.id || data.transactionId || ('MP' + Math.floor(Math.random() * 1000000))
-            });
+            processPaymentResponse(data);
           })
           .catch(error => {
             console.error('Error:', error);
-            setErrors({ payment: 'Erro na comunicação com o servidor. Tente novamente.' });
+            setErrors({ payment: `Erro na comunicação com o servidor: ${error.message}` });
             setIsProcessing(false);
+            setPaymentStatus('error');
+            setPaymentMessage('Falha na comunicação com o servidor de pagamentos. Por favor, tente novamente mais tarde.');
           });
         },
         onFetching: (resource) => {
@@ -244,18 +254,71 @@ function CadastroPremium() {
     if (step > 1) setStep(step - 1);
   };
 
+  // Mapeia status do Mercado Pago para mensagens amigáveis
+  const getPaymentStatusMessage = (status, statusDetail) => {
+    const statusMessages = {
+      'approved': 'Pagamento aprovado! Sua conta premium foi ativada.',
+      'in_process': 'Pagamento em análise. Assim que for aprovado, sua conta será ativada.',
+      'rejected': {
+        'cc_rejected_bad_filled_card_number': 'Verifique o número do cartão.',
+        'cc_rejected_bad_filled_date': 'Verifique a data de validade do cartão.',
+        'cc_rejected_bad_filled_other': 'Verifique os dados do cartão.',
+        'cc_rejected_bad_filled_security_code': 'Verifique o código de segurança do cartão.',
+        'cc_rejected_blacklist': 'Não pudemos processar seu pagamento. Use outro cartão ou contate seu banco.',
+        'cc_rejected_call_for_authorize': 'Você deve autorizar o pagamento com o valor para seu banco.',
+        'cc_rejected_card_disabled': 'Ligue para o banco para ativar seu cartão ou use outro meio de pagamento.',
+        'cc_rejected_duplicated_payment': 'Você já efetuou um pagamento com esse valor. Se precisar pagar novamente, use outro cartão ou outra forma de pagamento.',
+        'cc_rejected_high_risk': 'Seu pagamento foi recusado. Escolha outra forma de pagamento.',
+        'cc_rejected_insufficient_amount': 'O cartão possui saldo insuficiente.',
+        'cc_rejected_invalid_installments': 'O cartão não processa pagamentos com essa quantidade de parcelas.',
+        'cc_rejected_max_attempts': 'Você atingiu o limite de tentativas permitidas. Escolha outro cartão ou outra forma de pagamento.',
+        'cc_rejected_other_reason': 'O banco não processou o pagamento.',
+        'default': 'O pagamento foi recusado. Tente utilizar outro cartão ou entre em contato com o banco emissor.'
+      },
+      'cancelled': 'O pagamento foi cancelado.',
+      'refunded': 'O pagamento foi devolvido.',
+      'charged_back': 'Pagamento estornado no seu cartão de crédito.',
+      'default': 'Ocorreu um erro ao processar seu pagamento. Por favor, tente novamente.'
+    };
+    
+    if (status === 'rejected' && statusDetail) {
+      return statusMessages[status][statusDetail] || statusMessages[status]['default'];
+    }
+    
+    return statusMessages[status] || statusMessages['default'];
+  };
+
   // Processa a resposta do pagamento
   const processPaymentResponse = (response) => {
     setIsProcessing(false);
     
-    if (response.status === 'approved' || response.status === 'in_process') {
+    // Extrair informações relevantes do objeto de resposta
+    const status = response.status || response.payment_status || 'error';
+    const statusDetail = response.status_detail || response.detail || '';
+    const paymentId = response.id || response.payment_id || ('MP' + Math.floor(Math.random() * 1000000));
+    
+    console.log(`Processando pagamento: Status ${status}, Detalhe ${statusDetail}, ID ${paymentId}`);
+    
+    // Definir o status de pagamento
+    setPaymentStatus(status);
+    setTransactionId(paymentId);
+    
+    // Definir mensagem com base no status
+    const message = getPaymentStatusMessage(status, statusDetail);
+    setPaymentMessage(message);
+    
+    // Verificar se o pagamento foi aprovado ou está em análise
+    if (status === 'approved' || status === 'in_process') {
       // Pagamento aprovado ou em análise
-      setTransactionId(response.id);
       setIsSuccess(true);
       setStep(3);
     } else {
       // Erro no pagamento
-      setErrors({ payment: 'Erro ao processar pagamento. Tente novamente.' });
+      setIsSuccess(false);
+      setErrors({ payment: message });
+      if (status !== 'error') { // Se foi um erro de pagamento (não de comunicação), avançar para o passo 3
+        setStep(3);
+      }
     }
   };
 
@@ -510,7 +573,7 @@ function CadastroPremium() {
               <h2 className="text-2xl font-bold mb-4">Pagamento Confirmado!</h2>
               
               <p className="mb-6">
-                Parabéns! Seu pagamento foi processado com sucesso e sua conta premium foi ativada.
+                {paymentMessage || "Seu pagamento foi processado com sucesso e sua conta premium foi ativada."}
               </p>
               
               <div className="transaction-details mb-6 p-4 bg-gray-50 rounded-lg text-left">
@@ -532,7 +595,7 @@ function CadastroPremium() {
                 onClick={finishSignup}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
               >
-                Acessar Mind Desk Premium
+                {paymentStatus === 'in_process' ? 'Voltar ao site' : 'Acessar Mind Desk Premium'}
               </button>
               
               <p className="text-center text-sm mt-4 text-gray-600">
@@ -545,11 +608,24 @@ function CadastroPremium() {
                 <AlertCircle size={32} className="text-red-500" />
               </div>
               
-              <h2 className="text-2xl font-bold mb-4">Ocorreu um erro</h2>
+              <h2 className="text-2xl font-bold mb-4">Pagamento Não Aprovado</h2>
               
               <p className="mb-6">
-                Não foi possível processar seu pagamento. Por favor, tente novamente ou escolha outro método de pagamento.
+                {paymentMessage || "Não foi possível processar seu pagamento. Por favor, tente novamente ou escolha outro método de pagamento."}
               </p>
+              
+              {transactionId && (
+                <div className="transaction-details mb-6 p-4 bg-gray-50 rounded-lg text-left">
+                  <p className="flex justify-between mb-2">
+                    <span className="text-gray-600">ID da transação:</span>
+                    <span className="font-medium">{transactionId}</span>
+                  </p>
+                  <p className="flex justify-between mb-2">
+                    <span className="text-gray-600">Status:</span>
+                    <span className="font-medium text-red-500">{paymentStatus}</span>
+                  </p>
+                </div>
+              )}
               
               <button 
                 onClick={() => setStep(2)}
