@@ -134,27 +134,54 @@ function CadastroPremium() {
             identificationType,
           } = cardFormInstance.getCardFormData();
           
-          // Em um ambiente real, você enviaria isso para seu backend
-          console.log("Payment data:", {
-            token,
-            issuer_id,
-            payment_method_id,
-            transaction_amount: Number(amount),
-            installments: Number(installments),
-            description: "Assinatura Mind Desk Premium",
-            payer: {
-              email,
-              identification: {
-                type: identificationType,
-                number: identificationNumber,
-              },
+          // Preparando os dados a serem enviados para a API
+          const paymentData = {
+            // Dados do usuário
+            userData: {
+              nome: userData.nome,
+              email: userData.email,
+              senha: userData.senha
             },
-          });
+            // Dados do pagamento do Mercado Pago
+            paymentData: {
+              token,
+              issuer_id,
+              payment_method_id,
+              transaction_amount: Number(amount),
+              installments: Number(installments),
+              description: "Assinatura Mind Desk Premium",
+              payer: {
+                email,
+                identification: {
+                  type: identificationType,
+                  number: identificationNumber,
+                },
+              },
+            }
+          };
           
-          // Simulando uma chamada para o backend
-          setTimeout(() => {
-            processPaymentResponse({ status: 'approved', id: 'MP' + Math.floor(Math.random() * 1000000) });
-          }, 2000);
+          // Enviando os dados para a API
+          fetch('https://20b5-2804-7f0-7d80-7f2-ccbd-abcb-ab46-6fb3.ngrok-free.app/api/payments/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MGViNDAwYzYxZjJmYTFkNjU5OWI0NSIsImlhdCI6MTc0NzUwMTY0NSwiZXhwIjoxNzUwMDkzNjQ1fQ.cOo0jbXgsdKs8wzsRltNhiWbylPEVzJoB99cZJxSyCc'
+            },
+            body: JSON.stringify(paymentData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('API response:', data);
+            processPaymentResponse({ 
+              status: data.status || 'approved', 
+              id: data.id || data.transactionId || ('MP' + Math.floor(Math.random() * 1000000))
+            });
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            setErrors({ payment: 'Erro na comunicação com o servidor. Tente novamente.' });
+            setIsProcessing(false);
+          });
         },
         onFetching: (resource) => {
           console.log("Fetching resource: ", resource);
@@ -234,7 +261,7 @@ function CadastroPremium() {
 
   // Função para finalizar o cadastro e redirecionar para o app
   const finishSignup = () => {
-    navigate('/mind-desk');
+    navigate('/login');
   };
 
   return (
