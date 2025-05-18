@@ -20,6 +20,53 @@ import Cadastro from './pages/Cadastro';
 import MindfulnessApp from './pages/MindfulnessApp';
 import CadastroPremium from './pages/CadastroPremium';
 
+// Componente Navbar separado
+function Navbar() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  return (
+    <>
+      <nav className="navbar">
+        <div className="container">
+          <div className="navbar-content">
+            <div className="navbar-logo">
+              <Link to="/" className="logo">Mind Desk</Link>
+            </div>
+            <div className="navbar-links">
+              <a href="/#features" className="nav-link">Recursos</a>
+              <a href="/#pricing" className="nav-link">Preços</a>
+              <a href="/#about" className="nav-link">Sobre</a>
+              <Link to="/login" className="btn btn-outline">Entrar</Link>
+              <Link to="/cadastro" className="btn btn-primary">Cadastrar</Link>
+            </div>
+            <div className="navbar-mobile-toggle">
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="mobile-menu-button"
+              >
+                {mobileMenuOpen ? <CloseIcon /> : <Menu />}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="mobile-menu">
+            <div className="mobile-menu-items">
+              <a href="/#features" className="mobile-menu-link">Recursos</a>
+              <a href="/#pricing" className="mobile-menu-link">Preços</a>
+              <a href="/#about" className="mobile-menu-link">Sobre</a>
+              <Link to="/login" className="btn btn-outline mobile-btn">Entrar</Link>
+              <Link to="/cadastro" className="btn btn-primary mobile-btn">Cadastrar</Link>
+            </div>
+          </div>
+        )}
+      </nav>
+    </>
+  );
+}
+
 // Componente da página inicial
 function HomePage() {
   const plans = [
@@ -108,6 +155,7 @@ function HomePage() {
 
   return (
     <>
+      <Navbar />
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
@@ -311,55 +359,45 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-main">
+            <div className="footer-logo">
+              Mind Desk
+            </div>
+            <div className="footer-social">
+              <a href="https://instagram.com/pirandoins" target="_blank" rel="noopener noreferrer" className="social-link">
+                <span className="sr-only">Instagram</span>
+                <Instagram />
+              </a>
+              <a href="https://wa.me/11932214535" target="_blank" rel="noopener noreferrer" className="social-link">
+                <span className="sr-only">WhatsApp</span>
+                <MessageCircle />
+              </a>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <div className="footer-links">
+              <a href="#" className="footer-link">Privacidade</a>
+              <a href="#" className="footer-link">Termos</a>
+              <a href="#" className="footer-link">Contato</a>
+            </div>
+            <p className="footer-copyright">
+              &copy; 2025 Mind Desk. Todos os direitos reservados.
+            </p>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
 
 function App() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <Router>
       <div className="min-h-screen">
-        {/* Navigation */}
-        <nav className="navbar">
-          <div className="container">
-            <div className="navbar-content">
-              <div className="navbar-logo">
-                <Link to="/" className="logo">Mind Desk</Link>
-              </div>
-              <div className="navbar-links">
-                <a href="/#features" className="nav-link">Recursos</a>
-                <a href="/#pricing" className="nav-link">Preços</a>
-                <a href="/#about" className="nav-link">Sobre</a>
-                <Link to="/login" className="btn btn-outline">Entrar</Link>
-                <Link to="/cadastro" className="btn btn-primary">Cadastrar</Link>
-              </div>
-              <div className="navbar-mobile-toggle">
-                <button 
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="mobile-menu-button"
-                >
-                  {mobileMenuOpen ? <CloseIcon /> : <Menu />}
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Mobile menu */}
-          {mobileMenuOpen && (
-            <div className="mobile-menu">
-              <div className="mobile-menu-items">
-                <a href="/#features" className="mobile-menu-link">Recursos</a>
-                <a href="/#pricing" className="mobile-menu-link">Preços</a>
-                <a href="/#about" className="mobile-menu-link">Sobre</a>
-                <Link to="/login" className="btn btn-outline mobile-btn">Entrar</Link>
-                <Link to="/cadastro" className="btn btn-primary mobile-btn">Cadastrar</Link>
-              </div>
-            </div>
-          )}
-        </nav>
-
         {/* Define Routes */}
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -368,42 +406,6 @@ function App() {
           <Route path="/cadastro-premium" element={<CadastroPremium />} />
           <Route path="/mind-desk" element={<MindfulnessApp />} />
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-
-        {/* Footer - apenas visível na página inicial */}
-        <Routes>
-          <Route path="/" element={
-            <footer className="footer">
-              <div className="container">
-                <div className="footer-main">
-                  <div className="footer-logo">
-                    Mind Desk
-                  </div>
-                  <div className="footer-social">
-                    <a href="https://instagram.com/pirandoins" target="_blank" rel="noopener noreferrer" className="social-link">
-                      <span className="sr-only">Instagram</span>
-                      <Instagram />
-                    </a>
-                    <a href="https://wa.me/11932214535" target="_blank" rel="noopener noreferrer" className="social-link">
-                      <span className="sr-only">WhatsApp</span>
-                      <MessageCircle />
-                    </a>
-                  </div>
-                </div>
-                <div className="footer-bottom">
-                  <div className="footer-links">
-                    <a href="#" className="footer-link">Privacidade</a>
-                    <a href="#" className="footer-link">Termos</a>
-                    <a href="#" className="footer-link">Contato</a>
-                  </div>
-                  <p className="footer-copyright">
-                    &copy; 2025 Mind Desk. Todos os direitos reservados.
-                  </p>
-                </div>
-              </div>
-            </footer>
-          } />
-          <Route path="*" element={null} />
         </Routes>
       </div>
     </Router>
