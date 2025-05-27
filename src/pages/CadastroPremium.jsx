@@ -166,7 +166,7 @@ function CadastroPremium() {
           };
           
           // Enviando os dados para a API
-          fetch(' https://3e94-2804-7f0-7d80-293a-c02c-79b1-43a5-1d0e.ngrok-free.app/api/payments/create-with-signup', {
+          fetch('https://65dc-2804-7f0-7d80-293a-59b7-a4a8-d7f6-8e11.ngrok-free.app/api/payments/create-with-signup', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

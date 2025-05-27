@@ -15,7 +15,7 @@ const Cadastro = () => {
     setMensagem('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch('https://65dc-2804-7f0-7d80-293a-59b7-a4a8-d7f6-8e11.ngrok-free.app/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
