@@ -8,7 +8,7 @@ function CadastroPremium() {
   const [step, setStep] = useState(1);
   const [mpReady, setMpReady] = useState(false);
   const [cardForm, setCardForm] = useState(null);
-  
+
   // Estados para os dados do usuário
   const [userData, setUserData] = useState({
     nome: '',
@@ -16,10 +16,10 @@ function CadastroPremium() {
     senha: '',
     confirmarSenha: '',
   });
-  
+
   // Estados para controlar erros
   const [errors, setErrors] = useState({});
-  
+
   // Estados para confirmação
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -39,24 +39,24 @@ function CadastroPremium() {
       const mp = new window.MercadoPago("TEST-fb3994de-05a6-4f3b-9189-e37d1428f9e9", {
         locale: 'pt-BR'
       });
-      
+
       // Configura o formulário após o componente ser montado
       setTimeout(() => {
         if (document.getElementById('form-checkout__cardNumber')) {
           initCardForm(mp);
         }
       }, 100);
-      
+
       setMpReady(true);
     };
-    
+
     document.body.appendChild(script);
-    
+
     return () => {
       document.body.removeChild(script);
     };
   }, []);
-  
+
   // Inicializa o formulário de cartão quando o step for 2 e o MP estiver carregado
   useEffect(() => {
     if (step === 2 && mpReady && window.MercadoPago && !cardForm) {
@@ -71,7 +71,7 @@ function CadastroPremium() {
       }, 100);
     }
   }, [step, mpReady]);
-  
+
   // Inicializa o formulário de cartão
   const initCardForm = (mp) => {
     const cardFormInstance = mp.cardForm({
@@ -102,7 +102,7 @@ function CadastroPremium() {
         installments: {
           id: "form-checkout__installments",
           placeholder: "Parcelas",
-        },        
+        },
         identificationType: {
           id: "form-checkout__identificationType",
           placeholder: "Tipo de documento",
@@ -127,7 +127,7 @@ function CadastroPremium() {
           // Limpar erros anteriores
           setErrors({});
           setPaymentMessage('');
-          
+
           const {
             paymentMethodId: payment_method_id,
             issuerId: issuer_id,
@@ -138,7 +138,7 @@ function CadastroPremium() {
             identificationNumber,
             identificationType,
           } = cardFormInstance.getCardFormData();
-          
+
           // Preparando os dados a serem enviados para a API
           const paymentData = {
             // Dados do usuário
@@ -164,7 +164,7 @@ function CadastroPremium() {
               },
             }
           };
-          
+
           // Enviando os dados para a API
           fetch('https://65dc-2804-7f0-7d80-293a-59b7-a4a8-d7f6-8e11.ngrok-free.app/api/payments/create-with-signup', {
             method: 'POST',
@@ -174,24 +174,24 @@ function CadastroPremium() {
             },
             body: JSON.stringify(paymentData)
           })
-          .then(response => {
-            // Verificar status da resposta HTTP
-            if (!response.ok) {
-              throw new Error(`Erro na comunicação com o servidor: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then(data => {
-            console.log('API response:', data);
-            processPaymentResponse(data);
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            setErrors({ payment: `Erro na comunicação com o servidor: ${error.message}` });
-            setIsProcessing(false);
-            setPaymentStatus('error');
-            setPaymentMessage('Falha na comunicação com o servidor de pagamentos. Por favor, tente novamente mais tarde.');
-          });
+            .then(response => {
+              // Verificar status da resposta HTTP
+              if (!response.ok) {
+                throw new Error(`Erro na comunicação com o servidor: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log('API response:', data);
+              processPaymentResponse(data);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              setErrors({ payment: `Erro na comunicação com o servidor: ${error.message}` });
+              setIsProcessing(false);
+              setPaymentStatus('error');
+              setPaymentMessage('Falha na comunicação com o servidor de pagamentos. Por favor, tente novamente mais tarde.');
+            });
         },
         onFetching: (resource) => {
           console.log("Fetching resource: ", resource);
@@ -203,11 +203,11 @@ function CadastroPremium() {
               progressBar.setAttribute("value", "0");
             };
           }
-          return () => {};
+          return () => { };
         }
       },
     });
-    
+
     setCardForm(cardFormInstance);
   };
 
@@ -220,24 +220,24 @@ function CadastroPremium() {
   // Validação do primeiro passo
   const validateStep1 = () => {
     const newErrors = {};
-    
+
     if (!userData.nome.trim()) newErrors.nome = 'Nome é obrigatório';
     if (!userData.email.trim()) {
       newErrors.email = 'Email é obrigatório';
     } else if (!/\S+@\S+\.\S+/.test(userData.email)) {
       newErrors.email = 'Email inválido';
     }
-    
+
     if (!userData.senha) {
       newErrors.senha = 'Senha é obrigatória';
     } else if (userData.senha.length < 8) {
       newErrors.senha = 'A senha deve ter pelo menos 8 caracteres';
     }
-    
+
     if (userData.senha !== userData.confirmarSenha) {
       newErrors.confirmarSenha = 'As senhas não coincidem';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -280,33 +280,33 @@ function CadastroPremium() {
       'charged_back': 'Pagamento estornado no seu cartão de crédito.',
       'default': 'Ocorreu um erro ao processar seu pagamento. Por favor, tente novamente.'
     };
-    
+
     if (status === 'rejected' && statusDetail) {
       return statusMessages[status][statusDetail] || statusMessages[status]['default'];
     }
-    
+
     return statusMessages[status] || statusMessages['default'];
   };
 
   // Processa a resposta do pagamento
   const processPaymentResponse = (response) => {
     setIsProcessing(false);
-    
+
     // Extrair informações relevantes do objeto de resposta
     const status = response.status || response.payment_status || 'error';
     const statusDetail = response.status_detail || response.detail || '';
     const paymentId = response.id || response.payment_id || ('MP' + Math.floor(Math.random() * 1000000));
-    
+
     console.log(`Processando pagamento: Status ${status}, Detalhe ${statusDetail}, ID ${paymentId}`);
-    
+
     // Definir o status de pagamento
     setPaymentStatus(status);
     setTransactionId(paymentId);
-    
+
     // Definir mensagem com base no status
     const message = getPaymentStatusMessage(status, statusDetail);
     setPaymentMessage(message);
-    
+
     // Verificar se o pagamento foi aprovado ou está em análise
     if (status === 'approved' || status === 'in_process') {
       // Pagamento aprovado ou em análise
@@ -330,11 +330,11 @@ function CadastroPremium() {
   return (
     <div className="container mx-auto py-12 px-4 max-w-md">
       <div className="mb-8 flex items-center">
-        <button 
+        <button
           onClick={() => step === 1 ? navigate('/') : prevStep()}
           className="flex items-center text-blue-600 hover:text-blue-800"
         >
-          <ArrowLeft size={16} className="mr-1" /> 
+          <ArrowLeft size={16} className="mr-1" />
           {step === 1 ? 'Voltar para o site' : 'Etapa anterior'}
         </button>
       </div>
@@ -361,7 +361,7 @@ function CadastroPremium() {
       {step === 1 && (
         <div className="section-content">
           <h2 className="text-2xl font-bold mb-6">Informações da Conta</h2>
-          
+
           <div className="plan-summary mb-6 p-4 bg-blue-50 rounded-lg">
             <h3 className="font-bold text-lg">Plano Premium</h3>
             <p className="text-xl font-bold">R$59,90 <span className="text-sm font-normal">por mês</span></p>
@@ -380,7 +380,7 @@ function CadastroPremium() {
               </li>
             </ul>
           </div>
-          
+
           <div className="form-group mb-4">
             <label htmlFor="nome" className="block mb-1">Nome completo</label>
             <input
@@ -394,7 +394,7 @@ function CadastroPremium() {
             />
             {errors.nome && <p className="error-message">{errors.nome}</p>}
           </div>
-          
+
           <div className="form-group mb-4">
             <label htmlFor="email" className="block mb-1">Email</label>
             <input
@@ -408,7 +408,7 @@ function CadastroPremium() {
             />
             {errors.email && <p className="error-message">{errors.email}</p>}
           </div>
-          
+
           <div className="form-group mb-4">
             <label htmlFor="senha" className="block mb-1">Senha</label>
             <input
@@ -422,7 +422,7 @@ function CadastroPremium() {
             />
             {errors.senha && <p className="error-message">{errors.senha}</p>}
           </div>
-          
+
           <div className="form-group mb-6">
             <label htmlFor="confirmarSenha" className="block mb-1">Confirmar senha</label>
             <input
@@ -436,8 +436,8 @@ function CadastroPremium() {
             />
             {errors.confirmarSenha && <p className="error-message">{errors.confirmarSenha}</p>}
           </div>
-          
-          <button 
+
+          <button
             onClick={nextStep}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
           >
@@ -449,12 +449,12 @@ function CadastroPremium() {
       {step === 2 && (
         <div className="section-content">
           <h2 className="text-2xl font-bold mb-6">Informações de Pagamento</h2>
-          
+
           <div className="plan-summary mb-6 p-4 bg-blue-50 rounded-lg">
             <h3 className="font-bold text-lg">Plano Premium</h3>
             <p className="text-xl font-bold">R$59,90 <span className="text-sm font-normal">por mês</span></p>
           </div>
-          
+
           <div className="payment-methods mb-6">
             <p className="mb-2 font-medium">Método de pagamento</p>
             <div className="flex items-center">
@@ -467,70 +467,70 @@ function CadastroPremium() {
               </span>
             </div>
           </div>
-          
+
           <form id="form-checkout" className="mb-6">
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Número do cartão</label>
-              <div id="form-checkout__cardNumber" className="payment-form-field"></div>
+              <div id="form-checkout__cardNumber" className="payment-form-field border border-black rounded p-2"></div>
               {errors.cardNumber && <p className="error-message">{errors.cardNumber}</p>}
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Data de validade</label>
-                <div id="form-checkout__expirationDate" className="payment-form-field"></div>
+                <div id="form-checkout__expirationDate" className="payment-form-field border border-black rounded p-2"></div>
                 {errors.expirationDate && <p className="error-message">{errors.expirationDate}</p>}
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-1">CVV</label>
-                <div id="form-checkout__securityCode" className="payment-form-field"></div>
+                <div id="form-checkout__securityCode" className="payment-form-field border border-black rounded p-2"></div>
                 {errors.securityCode && <p className="error-message">{errors.securityCode}</p>}
               </div>
             </div>
-            
+
             <div className="mb-4">
               <label htmlFor="form-checkout__cardholderName" className="block text-sm font-medium mb-1">Nome no cartão</label>
-              <input 
-                type="text" 
-                id="form-checkout__cardholderName" 
+              <input
+                type="text"
+                id="form-checkout__cardholderName"
                 className="form-input"
                 defaultValue={userData.nome}
               />
               {errors.cardholderName && <p className="error-message">{errors.cardholderName}</p>}
             </div>
-            
+
             <div className="mb-4">
               <label htmlFor="form-checkout__cardholderEmail" className="block text-sm font-medium mb-1">Email</label>
-              <input 
-                type="email" 
-                id="form-checkout__cardholderEmail" 
+              <input
+                type="email"
+                id="form-checkout__cardholderEmail"
                 className="form-input"
                 defaultValue={userData.email}
               />
               {errors.cardholderEmail && <p className="error-message">{errors.cardholderEmail}</p>}
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label htmlFor="form-checkout__identificationType" className="block text-sm font-medium mb-1">Tipo de documento</label>
                 <select id="form-checkout__identificationType" className="form-input"></select>
                 {errors.identificationType && <p className="error-message">{errors.identificationType}</p>}
               </div>
-              
+
               <div>
                 <label htmlFor="form-checkout__identificationNumber" className="block text-sm font-medium mb-1">Número do documento</label>
                 <input type="text" id="form-checkout__identificationNumber" className="form-input" />
                 {errors.identificationNumber && <p className="error-message">{errors.identificationNumber}</p>}
               </div>
             </div>
-            
+
             <div className="mb-4">
               <label htmlFor="form-checkout__issuer" className="block text-sm font-medium mb-1">Banco emissor</label>
               <select id="form-checkout__issuer" className="form-input"></select>
               {errors.issuer && <p className="error-message">{errors.issuer}</p>}
             </div>
-            
+
             <div className="mb-6">
               <label htmlFor="form-checkout__installments" className="block text-sm font-medium mb-1">Parcelas</label>
               <select id="form-checkout__installments" className="form-input"></select>
@@ -543,19 +543,19 @@ function CadastroPremium() {
                 <p className="text-red-700 text-sm">{errors.payment}</p>
               </div>
             )}
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               id="form-checkout__submit"
               disabled={isProcessing}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
             >
               {isProcessing ? 'Processando...' : 'Finalizar pagamento'}
             </button>
-            
+
             <progress value="0" className="progress-bar w-full mt-4" style={{ display: isProcessing ? 'block' : 'none' }}>Carregando...</progress>
           </form>
-          
+
           <p className="text-center text-sm mt-4 text-gray-600">
             Seus dados de pagamento são processados de forma segura e criptografada pelo Mercado Pago.
           </p>
@@ -569,13 +569,13 @@ function CadastroPremium() {
               <div className="success-icon mb-4 mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                 <CheckCircle size={32} className="text-green-500" />
               </div>
-              
+
               <h2 className="text-2xl font-bold mb-4">Pagamento Confirmado!</h2>
-              
+
               <p className="mb-6">
                 {paymentMessage || "Seu pagamento foi processado com sucesso e sua conta premium foi ativada."}
               </p>
-              
+
               <div className="transaction-details mb-6 p-4 bg-gray-50 rounded-lg text-left">
                 <p className="flex justify-between mb-2">
                   <span className="text-gray-600">ID da transação:</span>
@@ -590,14 +590,14 @@ function CadastroPremium() {
                   <span className="font-medium">R$59,90/mês</span>
                 </p>
               </div>
-              
-              <button 
+
+              <button
                 onClick={finishSignup}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
               >
                 {paymentStatus === 'in_process' ? 'Voltar ao site' : 'Acessar Mind Desk Premium'}
               </button>
-              
+
               <p className="text-center text-sm mt-4 text-gray-600">
                 Um comprovante foi enviado para {userData.email}
               </p>
@@ -607,13 +607,13 @@ function CadastroPremium() {
               <div className="error-icon mb-4 mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertCircle size={32} className="text-red-500" />
               </div>
-              
+
               <h2 className="text-2xl font-bold mb-4">Pagamento Não Aprovado</h2>
-              
+
               <p className="mb-6">
                 {paymentMessage || "Não foi possível processar seu pagamento. Por favor, tente novamente ou escolha outro método de pagamento."}
               </p>
-              
+
               {transactionId && (
                 <div className="transaction-details mb-6 p-4 bg-gray-50 rounded-lg text-left">
                   <p className="flex justify-between mb-2">
@@ -626,8 +626,8 @@ function CadastroPremium() {
                   </p>
                 </div>
               )}
-              
-              <button 
+
+              <button
                 onClick={() => setStep(2)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
               >
