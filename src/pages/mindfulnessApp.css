@@ -436,3 +436,513 @@
       font-size: 0.8rem;
     }
   }
+
+  /* Active Meditation Styles */
+  .active-meditation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    width: 100%;
+    padding: 2rem;
+  }
+  
+  .meditation-timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  
+  .timer-circle {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F5F5F5 0%, #E8F5F0 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+      0 0 30px rgba(42, 91, 95, 0.2),
+      inset 0 0 20px rgba(255, 255, 255, 0.3);
+    position: relative;
+    animation: meditate-pulse 4s ease-in-out infinite;
+    border: 3px solid #478B89;
+  }
+  
+  .timer-circle::before {
+    content: '';
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    border: 2px solid rgba(71, 139, 137, 0.3);
+    animation: ripple 3s ease-out infinite;
+  }
+  
+  .timer-circle::after {
+    content: '';
+    position: absolute;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    border: 1px solid rgba(71, 139, 137, 0.2);
+    animation: ripple 3s ease-out infinite 1.5s;
+  }
+  
+  @keyframes meditate-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 
+        0 0 30px rgba(42, 91, 95, 0.2),
+        inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+      transform: scale(1.02);
+      box-shadow: 
+        0 0 40px rgba(42, 91, 95, 0.3),
+        inset 0 0 25px rgba(255, 255, 255, 0.4);
+    }
+  }
+  
+  @keyframes ripple {
+    0% {
+      transform: scale(0.8);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.2);
+      opacity: 0;
+    }
+  }
+  
+  .timer-text {
+    font-size: 3.5rem;
+    font-weight: 300;
+    color: #2A5B5F;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(42, 91, 95, 0.1);
+  }
+  
+  .session-type {
+    text-align: center;
+    color: #478B89;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+  }
+  
+  .meditation-controls {
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .stop-button {
+    background-color: #E74C3C;
+    padding: 0.8rem 2.5rem;
+    font-size: 1rem;
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  }
+  
+  .stop-button:hover {
+    background-color: #C0392B;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+  }
+  
+  .meditation-ambient-display {
+    text-align: center;
+    background-color: rgba(245, 245, 245, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 12px rgba(42, 91, 95, 0.1);
+  }
+  
+  .meditation-ambient-display p {
+    color: #2A5B5F;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  /* Active Relaxation Styles */
+  .active-relaxation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 1.5rem;
+  }
+  
+  .relaxation-timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+  
+  .relaxation-timer-display .timer-circle {
+    width: 240px;
+    height: 240px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .relaxation-timer-display .timer-text {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .relaxation-timer-display .session-type {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .relaxation-timer-display .session-type h3 {
+    color: #2A5B5F;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .relaxation-instructions {
+    background-color: rgba(245, 245, 245, 0.9);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 12px rgba(42, 91, 95, 0.1);
+  }
+  
+  .relaxation-instructions p {
+    color: #2A5B5F;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .relaxation-instructions ol {
+    color: #2A5B5F;
+    line-height: 1.6;
+    padding-left: 1.2rem;
+  }
+  
+  .relaxation-instructions li {
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+  }
+  
+  .relaxation-controls {
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .active-meditation {
+      padding: 1rem;
+    }
+    
+    .timer-circle {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .timer-text {
+      font-size: 2.5rem;
+    }
+    
+    .session-type {
+      font-size: 1rem;
+    }
+    
+    .stop-button {
+      padding: 0.6rem 2rem;
+      font-size: 0.9rem;
+    }
+    
+    .active-relaxation {
+      padding: 1rem;
+    }
+    
+    .relaxation-timer-display .timer-circle {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .relaxation-timer-display .timer-text {
+      font-size: 2.2rem;
+    }
+    
+    .relaxation-timer-display .session-type h3 {
+      font-size: 1.2rem;
+    }
+  }
+
+  /* Active Meditation Styles */
+  .active-meditation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    width: 100%;
+    padding: 2rem;
+  }
+  
+  .meditation-timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  
+  .timer-circle {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F5F5F5 0%, #E8F5F0 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+      0 0 30px rgba(42, 91, 95, 0.2),
+      inset 0 0 20px rgba(255, 255, 255, 0.3);
+    position: relative;
+    animation: meditate-pulse 4s ease-in-out infinite;
+    border: 3px solid #478B89;
+  }
+  
+  .timer-circle::before {
+    content: '';
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    border: 2px solid rgba(71, 139, 137, 0.3);
+    animation: ripple 3s ease-out infinite;
+  }
+  
+  .timer-circle::after {
+    content: '';
+    position: absolute;
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    border: 1px solid rgba(71, 139, 137, 0.2);
+    animation: ripple 3s ease-out infinite 1.5s;
+  }
+  
+  @keyframes meditate-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 
+        0 0 30px rgba(42, 91, 95, 0.2),
+        inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+      transform: scale(1.02);
+      box-shadow: 
+        0 0 40px rgba(42, 91, 95, 0.3),
+        inset 0 0 25px rgba(255, 255, 255, 0.4);
+    }
+  }
+  
+  @keyframes ripple {
+    0% {
+      transform: scale(0.8);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.2);
+      opacity: 0;
+    }
+  }
+  
+  .timer-text {
+    font-size: 3.5rem;
+    font-weight: 300;
+    color: #2A5B5F;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(42, 91, 95, 0.1);
+  }
+  
+  .session-type {
+    text-align: center;
+    color: #478B89;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+  }
+  
+  .meditation-controls {
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .stop-button {
+    background-color: #E74C3C;
+    padding: 0.8rem 2.5rem;
+    font-size: 1rem;
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  }
+  
+  .stop-button:hover {
+    background-color: #C0392B;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+  }
+  
+  .meditation-ambient-display {
+    text-align: center;
+    background-color: rgba(245, 245, 245, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 12px rgba(42, 91, 95, 0.1);
+  }
+  
+  .meditation-ambient-display p {
+    color: #2A5B5F;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  /* Active Relaxation Styles */
+  .active-relaxation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 1.5rem;
+  }
+  
+  .relaxation-timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+  
+  .relaxation-timer-display .timer-circle {
+    width: 240px;
+    height: 240px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .relaxation-timer-display .timer-text {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .relaxation-timer-display .session-type {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .relaxation-timer-display .session-type h3 {
+    color: #2A5B5F;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .relaxation-instructions {
+    background-color: rgba(245, 245, 245, 0.9);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 12px rgba(42, 91, 95, 0.1);
+  }
+  
+  .relaxation-instructions p {
+    color: #2A5B5F;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .relaxation-instructions ol {
+    color: #2A5B5F;
+    line-height: 1.6;
+    padding-left: 1.2rem;
+  }
+  
+  .relaxation-instructions li {
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+  }
+  
+  .relaxation-controls {
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .active-meditation {
+      padding: 1rem;
+    }
+    
+    .timer-circle {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .timer-text {
+      font-size: 2.5rem;
+    }
+    
+    .session-type {
+      font-size: 1rem;
+    }
+    
+    .stop-button {
+      padding: 0.6rem 2rem;
+      font-size: 0.9rem;
+    }
+    
+    .active-relaxation {
+      padding: 1rem;
+    }
+    
+    .relaxation-timer-display .timer-circle {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .relaxation-timer-display .timer-text {
+      font-size: 2.2rem;
+    }
+    
+    .relaxation-timer-display .session-type h3 {
+      font-size: 1.2rem;
+    }
+  }
