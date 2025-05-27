@@ -413,66 +413,10 @@ export default function MindfulnessApp() {
                       {formatTime(relaxationTimer)}
                     </div>
                     <div className="session-type">
-                      {activeRelaxationTechnique === 'muscle' && (
-                        <>
-                          <h3>Relaxamento Muscular Progressivo</h3>
-                          <div className="relaxation-instructions">
-                            <p>Siga as instruções abaixo:</p>
-                            <ol>
-                              <li>Sente-se ou deite-se em uma posição confortável</li>
-                              <li>Tensione os músculos dos pés por 5 segundos</li>
-                              <li>Relaxe completamente os músculos dos pés</li>
-                              <li>Continue para as pernas, abdômen, peito, braços, mãos e rosto</li>
-                              <li>Repita o processo se necessário</li>
-                            </ol>
-                          </div>
-                        </>
-                      )}
-                      {activeRelaxationTechnique === 'visualization' && (
-                        <>
-                          <h3>Visualização</h3>
-                          <div className="relaxation-instructions">
-                            <p>Siga as instruções abaixo:</p>
-                            <ol>
-                              <li>Feche os olhos e respire profundamente</li>
-                              <li>Imagine um lugar tranquilo e seguro</li>
-                              <li>Visualize os detalhes - cores, sons, texturas</li>
-                              <li>Sinta-se presente neste local</li>
-                              <li>Mantenha esta imagem mental durante a sessão</li>
-                            </ol>
-                          </div>
-                        </>
-                      )}
-                      {activeRelaxationTechnique === 'bodyscan' && (
-                        <>
-                          <h3>Scanner Corporal</h3>
-                          <div className="relaxation-instructions">
-                            <p>Siga as instruções abaixo:</p>
-                            <ol>
-                              <li>Deite-se em uma posição confortável</li>
-                              <li>Comece a direcionar sua atenção para os dedos dos pés</li>
-                              <li>Lentamente mova sua atenção para as pernas</li>
-                              <li>Continue subindo por todo o corpo até chegar ao topo da cabeça</li>
-                              <li>Observe sensações sem julgamento</li>
-                            </ol>
-                          </div>
-                        </>
-                      )}
-                      {activeRelaxationTechnique === 'walking' && (
-                        <>
-                          <h3>Caminhada Consciente</h3>
-                          <div className="relaxation-instructions">
-                            <p>Siga as instruções abaixo:</p>
-                            <ol>
-                              <li>Escolha um espaço tranquilo para caminhar</li>
-                              <li>Caminhe lentamente, prestando atenção a cada passo</li>
-                              <li>Sinta o movimento dos pés tocando o chão</li>
-                              <li>Observe o equilíbrio, o peso e o movimento</li>
-                              <li>Se a mente divagar, suavemente traga-a de volta para o caminhar</li>
-                            </ol>
-                          </div>
-                        </>
-                      )}
+                      {activeRelaxationTechnique === 'muscle' && 'Relaxamento Muscular Progressivo'}
+                      {activeRelaxationTechnique === 'visualization' && 'Visualização'}
+                      {activeRelaxationTechnique === 'bodyscan' && 'Scanner Corporal'}
+                      {activeRelaxationTechnique === 'walking' && 'Caminhada Consciente'}
                     </div>
                   </div>
                 </div>
@@ -484,6 +428,57 @@ export default function MindfulnessApp() {
                   >
                     Encerrar Sessão
                   </button>
+                </div>
+
+                <div className="relaxation-instructions-container">
+                  {activeRelaxationTechnique === 'muscle' && (
+                    <div className="relaxation-instructions">
+                      <p>Siga as instruções abaixo:</p>
+                      <ol>
+                        <li>Sente-se ou deite-se em uma posição confortável</li>
+                        <li>Tensione os músculos dos pés por 5 segundos</li>
+                        <li>Relaxe completamente os músculos dos pés</li>
+                        <li>Continue para as pernas, abdômen, peito, braços, mãos e rosto</li>
+                        <li>Repita o processo se necessário</li>
+                      </ol>
+                    </div>
+                  )}
+                  {activeRelaxationTechnique === 'visualization' && (
+                    <div className="relaxation-instructions">
+                      <p>Siga as instruções abaixo:</p>
+                      <ol>
+                        <li>Feche os olhos e respire profundamente</li>
+                        <li>Imagine um lugar tranquilo e seguro</li>
+                        <li>Visualize os detalhes - cores, sons, texturas</li>
+                        <li>Sinta-se presente neste local</li>
+                        <li>Mantenha esta imagem mental durante a sessão</li>
+                      </ol>
+                    </div>
+                  )}
+                  {activeRelaxationTechnique === 'bodyscan' && (
+                    <div className="relaxation-instructions">
+                      <p>Siga as instruções abaixo:</p>
+                      <ol>
+                        <li>Deite-se em uma posição confortável</li>
+                        <li>Comece a direcionar sua atenção para os dedos dos pés</li>
+                        <li>Lentamente mova sua atenção para as pernas</li>
+                        <li>Continue subindo por todo o corpo até chegar ao topo da cabeça</li>
+                        <li>Observe sensações sem julgamento</li>
+                      </ol>
+                    </div>
+                  )}
+                  {activeRelaxationTechnique === 'walking' && (
+                    <div className="relaxation-instructions">
+                      <p>Siga as instruções abaixo:</p>
+                      <ol>
+                        <li>Escolha um espaço tranquilo para caminhar</li>
+                        <li>Caminhe lentamente, prestando atenção a cada passo</li>
+                        <li>Sinta o movimento dos pés tocando o chão</li>
+                        <li>Observe o equilíbrio, o peso e o movimento</li>
+                        <li>Se a mente divagar, suavemente traga-a de volta para o caminhar</li>
+                      </ol>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
