@@ -25,6 +25,10 @@ export default function MindfulnessApp() {
   const [isRelaxationActive, setIsRelaxationActive] = useState(false);
   const relaxationIntervalRef = useRef(null);
 
+  // Estado para controlar o carregamento do salvamento
+  const [isSavingEntry, setIsSavingEntry] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+
   // Exercício de respiração
   useEffect(() => {
     if (isBreathingActive) {
@@ -188,19 +192,74 @@ export default function MindfulnessApp() {
   };
 
   // Salvar entrada do diário
-  const saveJournalEntry = () => {
+  const saveJournalEntry = async () => {
     if (newJournalEntry.trim() === '') return;
     
-    const newEntry = {
-      date: new Date().toLocaleDateString(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: newJournalEntry,
-      mood: currentMood
-    };
+    setIsSavingEntry(true);
+    setSaveError(null);
     
-    setJournalEntries([newEntry, ...journalEntries]);
-    setNewJournalEntry('');
-    setCurrentMood('neutral');
+    try {
+      // Preparar dados para envio
+      const entryData = {
+        content: newJournalEntry,
+        mood: currentMood,
+        emotions: {
+          mood: currentMood,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      // Fazer requisição para a API
+      const response = await fetch('/api/diary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Assumindo que você tem um token de autenticação
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(entryData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao salvar entrada no servidor');
+      }
+
+      const savedEntry = await response.json();
+      
+      // Criar entrada local para exibição imediata
+      const newEntry = {
+        id: savedEntry._id || Date.now(), // Use o ID do servidor ou timestamp como fallback
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        text: newJournalEntry,
+        mood: currentMood,
+        synced: true // Indica que foi sincronizada com o servidor
+      };
+      
+      setJournalEntries([newEntry, ...journalEntries]);
+      setNewJournalEntry('');
+      setCurrentMood('neutral');
+      
+    } catch (error) {
+      console.error('Erro ao salvar entrada:', error);
+      setSaveError('Não foi possível salvar a entrada. Tente novamente.');
+      
+      // Salvar localmente como fallback
+      const newEntry = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        text: newJournalEntry,
+        mood: currentMood,
+        synced: false // Indica que não foi sincronizada
+      };
+      
+      setJournalEntries([newEntry, ...journalEntries]);
+      setNewJournalEntry('');
+      setCurrentMood('neutral');
+    } finally {
+      setIsSavingEntry(false);
+    }
   };
 
   // Obter classe para o círculo de respiração com base na fase
