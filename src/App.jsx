@@ -125,7 +125,7 @@ function HomePage() {
       ],
       unavailable: [],
       buttonText: "Contatar Vendas",
-      buttonLink: "https://wa.me/11932214535",
+      buttonLink: "https://wa.me/5511932214535",
       highlight: false,
     }
   ];
