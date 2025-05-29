@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Leaf, BookOpen, Heart, Wind, Activity, Menu, Clock, Moon, Sun, Cloud, VolumeX } from 'lucide-react';
 import './mindfulnessApp.css';
-import { LogOut, Settings, User, X } from 'lucide-react';
+import MindfulnessHeader from './MindfulnessAppHeader';
+import { LogOut, Settings, User, X, Bell, ChevronRight, BarChart3, Share2, Sparkles, Award} from 'lucide-react';
 
 export default function MindfulnessApp() {
   const [breathCount, setBreathCount] = useState(4);
@@ -13,7 +14,36 @@ export default function MindfulnessApp() {
   const [currentMood, setCurrentMood] = useState('neutral');
   const breathingIntervalRef = useRef(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const toggleMenu = () => setIsMenuOpen((open) => !open);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [streak, setStreak] = useState(12);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  const formatClockTime = (date) => {
+    return date.toLocaleTimeString('pt-BR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Bom dia';
+    if (hour < 18) return 'Boa tarde';
+    return 'Boa noite';
+  };
 
 
   // Variáveis para a meditação
@@ -642,76 +672,8 @@ export default function MindfulnessApp() {
 
   return (
     <div className="app-container">
-      <header className="app-header relative">
-      <div className="header-main flex justify-between items-center px-6 py-4 bg-white shadow-sm">
-        <div className="header-left">
-          <h1 className="text-2xl font-bold text-gray-800">Mindfulness App</h1>
-        </div>
-        
-        <div className="header-right">
-          <button 
-            onClick={toggleMenu}
-            className="header-toggle p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Abrir menu"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Menu Dropdown */}
-      {isMenuOpen && (
-        <div className="absolute right-0 top-full w-80 bg-white shadow-lg border border-gray-200 rounded-b-lg z-50">
-          {/* Informações do Usuário */}
-          <div className="p-4 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="user-avatar w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                <span>U</span>
-              </div>
-              <div className="user-details">
-                <div className="user-name text-lg font-semibold text-gray-800">Usuário</div>
-                <div className="plan-badge inline-block px-2 py-1 bg-green-100 text-green-800 text-sm rounded-full">
-                  Plano Básico
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Menu Items */}
-          <nav className="py-2">
-            <a href="#" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
-              <BookOpen size={20} className="mr-3 text-blue-500" />
-              <span>Recomendações de Livros</span>
-            </a>
-            
-            <a href="#" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
-              <User size={20} className="mr-3 text-gray-500" />
-              <span>Perfil</span>
-            </a>
-            
-            <a href="#" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
-              <Settings size={20} className="mr-3 text-gray-500" />
-              <span>Configurações</span>
-            </a>
-            
-            <hr className="my-2 border-gray-100" />
-            
-            <a href="#" className="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition-colors">
-              <LogOut size={20} className="mr-3" />
-              <span>Sair</span>
-            </a>
-          </nav>
-        </div>
-      )}
-
-      {/* Overlay para fechar o menu */}
-      {isMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-20 z-40"
-          onClick={toggleMenu}
-        />
-      )}
-    </header>
+      {/* Cabeçalho do Aplicativo */}
+      <MindfulnessHeader />
       {/* Conteúdo Principal */}
       <main className="main-content">
         {renderContent()}
