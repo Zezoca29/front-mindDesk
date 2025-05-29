@@ -12,7 +12,7 @@ const Login = () => {
     setError('');
     
     try {
-      const response = await fetch('https://65dc-2804-7f0-7d80-293a-59b7-a4a8-d7f6-8e11.ngrok-free.app/api/auth/login', {
+      const response = await fetch('https://faed-2804-7f0-7d80-1e00-c48c-9ad2-70f3-ee6b.ngrok-free.app/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

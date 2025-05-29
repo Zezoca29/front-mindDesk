@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Leaf, BookOpen, Heart, Wind, Activity, Menu, Clock, Moon, Sun, Cloud, VolumeX } from 'lucide-react';
 import './mindfulnessApp.css';
+import { LogOut, Settings, User, X } from 'lucide-react';
 
 export default function MindfulnessApp() {
   const [breathCount, setBreathCount] = useState(4);
@@ -11,14 +12,17 @@ export default function MindfulnessApp() {
   const [newJournalEntry, setNewJournalEntry] = useState('');
   const [currentMood, setCurrentMood] = useState('neutral');
   const breathingIntervalRef = useRef(null);
-  
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggleMenu = () => setIsMenuOpen((open) => !open);
+
+
   // Variáveis para a meditação
   const [activeMeditationSession, setActiveMeditationSession] = useState(null);
   const [meditationTimer, setMeditationTimer] = useState(300); // 5 minutos em segundos (padrão)
   const [backgroundSound, setBackgroundSound] = useState('nature'); // 'nature', 'rain', 'silence'
   const [isMeditationActive, setIsMeditationActive] = useState(false);
   const meditationIntervalRef = useRef(null);
-  
+
   // Variáveis para as técnicas de relaxamento
   const [activeRelaxationTechnique, setActiveRelaxationTechnique] = useState(null);
   const [relaxationTimer, setRelaxationTimer] = useState(0);
@@ -54,10 +58,10 @@ export default function MindfulnessApp() {
         } else if (phase === 'exhale') {
           setBreathCount(prevCount => {
             if (prevCount > 1) return prevCount - 1;
-            
+
             // Completou um ciclo completo
             totalCycle++;
-            
+
             // Após completar 5 ciclos, parar o exercício
             if (totalCycle >= 5) {
               setIsBreathingActive(false);
@@ -65,14 +69,14 @@ export default function MindfulnessApp() {
               setBreathPhase('inhale');
               return 4;
             }
-            
+
             phase = 'inhale';
             setBreathPhase('inhale');
             return 4; // Reset para 4 na fase de inalar
           });
         }
       }, 1000);
-      
+
       return () => {
         if (breathingIntervalRef.current) {
           clearInterval(breathingIntervalRef.current);
@@ -93,7 +97,7 @@ export default function MindfulnessApp() {
           return prevTime - 1;
         });
       }, 1000);
-      
+
       return () => {
         if (meditationIntervalRef.current) {
           clearInterval(meditationIntervalRef.current);
@@ -101,7 +105,7 @@ export default function MindfulnessApp() {
       };
     }
   }, [isMeditationActive, meditationTimer]);
-  
+
   // Lógica do temporizador para técnicas de relaxamento
   useEffect(() => {
     if (isRelaxationActive && relaxationTimer > 0) {
@@ -114,7 +118,7 @@ export default function MindfulnessApp() {
           return prevTime - 1;
         });
       }, 1000);
-      
+
       return () => {
         if (relaxationIntervalRef.current) {
           clearInterval(relaxationIntervalRef.current);
@@ -159,14 +163,14 @@ export default function MindfulnessApp() {
     stopMeditation();
     // Aqui poderíamos adicionar uma notificação ou som de finalização
   };
-  
+
   // Funcionalidade de técnicas de relaxamento
   const startRelaxationTechnique = (technique, duration) => {
     setActiveRelaxationTechnique(technique);
     setRelaxationTimer(duration);
     setIsRelaxationActive(true);
   };
-  
+
   const stopRelaxationTechnique = () => {
     setIsRelaxationActive(false);
     setActiveRelaxationTechnique(null);
@@ -174,7 +178,7 @@ export default function MindfulnessApp() {
       clearInterval(relaxationIntervalRef.current);
     }
   };
-  
+
   const completeRelaxationSession = () => {
     stopRelaxationTechnique();
     // Aqui poderíamos adicionar uma notificação ou som de finalização
@@ -194,10 +198,10 @@ export default function MindfulnessApp() {
   // Salvar entrada do diário
   const saveJournalEntry = async () => {
     if (newJournalEntry.trim() === '') return;
-    
+
     setIsSavingEntry(true);
     setSaveError(null);
-    
+
     try {
       // Preparar dados para envio
       const entryData = {
@@ -225,7 +229,7 @@ export default function MindfulnessApp() {
       }
 
       const savedEntry = await response.json();
-      
+
       // Criar entrada local para exibição imediata
       const newEntry = {
         id: savedEntry._id || Date.now(), // Use o ID do servidor ou timestamp como fallback
@@ -235,15 +239,15 @@ export default function MindfulnessApp() {
         mood: currentMood,
         synced: true // Indica que foi sincronizada com o servidor
       };
-      
+
       setJournalEntries([newEntry, ...journalEntries]);
       setNewJournalEntry('');
       setCurrentMood('neutral');
-      
+
     } catch (error) {
       console.error('Erro ao salvar entrada:', error);
       setSaveError('Não foi possível salvar a entrada. Tente novamente.');
-      
+
       // Salvar localmente como fallback
       const newEntry = {
         id: Date.now(),
@@ -253,7 +257,7 @@ export default function MindfulnessApp() {
         mood: currentMood,
         synced: false // Indica que não foi sincronizada
       };
-      
+
       setJournalEntries([newEntry, ...journalEntries]);
       setNewJournalEntry('');
       setCurrentMood('neutral');
@@ -265,7 +269,7 @@ export default function MindfulnessApp() {
   // Obter classe para o círculo de respiração com base na fase
   const getBreathingCircleClass = () => {
     if (!isBreathingActive) return 'breathing-circle';
-    
+
     if (breathPhase === 'inhale') {
       return 'breathing-circle inhale-animation';
     } else if (breathPhase === 'hold') {
@@ -274,7 +278,7 @@ export default function MindfulnessApp() {
       return 'breathing-circle exhale-animation';
     }
   };
-  
+
   // Obter texto traduzido para a fase de respiração
   const getBreathPhaseText = () => {
     if (breathPhase === 'inhale') return 'INSPIRE';
@@ -290,7 +294,7 @@ export default function MindfulnessApp() {
         return (
           <div className="exercise-container">
             <h2 className="section-title">Exercício de Respiração</h2>
-            
+
             <div className="breathing-wrapper">
               <div className={getBreathingCircleClass()}>
                 <div className="breath-text">
@@ -299,12 +303,12 @@ export default function MindfulnessApp() {
                 </div>
               </div>
             </div>
-            
+
             <p className="instruction-text">
               Inspire por 4 segundos - Segure por 4 segundos - Expire por 6 segundos
             </p>
-            
-            <button 
+
+            <button
               className="action-button start-button"
               onClick={isBreathingActive ? stopBreathingExercise : startBreathingExercise}
             >
@@ -326,34 +330,34 @@ export default function MindfulnessApp() {
                   <h3>Meditação Guiada</h3>
                   <p>Escolha uma sessão de meditação abaixo</p>
                 </div>
-                
+
                 <div className="meditation-options">
                   <div className="meditation-option">
                     <h4>5 Minutos de Mindfulness</h4>
                     <p>Meditação rápida para se centrar</p>
-                    <button 
+                    <button
                       className="action-button"
                       onClick={() => startMeditation('mindfulness', 5 * 60)}
                     >
                       Iniciar
                     </button>
                   </div>
-                  
+
                   <div className="meditation-option">
                     <h4>15 Minutos de Relaxamento Profundo</h4>
                     <p>Prática mais profunda para redução de estresse</p>
-                    <button 
+                    <button
                       className="action-button"
                       onClick={() => startMeditation('relaxation', 15 * 60)}
                     >
                       Iniciar
                     </button>
                   </div>
-                  
+
                   <div className="meditation-option">
                     <h4>Preparação para Dormir</h4>
                     <p>20 minutos de meditação para um sono melhor</p>
-                    <button 
+                    <button
                       className="action-button"
                       onClick={() => startMeditation('sleep', 20 * 60)}
                     >
@@ -363,7 +367,7 @@ export default function MindfulnessApp() {
                 </div>
 
                 {/* Feature 2: Temporizador Personalizado */}
-                
+
               </>
             ) : (
               // Interface quando a meditação está ativa
@@ -381,18 +385,18 @@ export default function MindfulnessApp() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="meditation-controls">
-                  <button 
+                  <button
                     className="action-button stop-button"
                     onClick={stopMeditation}
                   >
                     Encerrar Meditação
                   </button>
                 </div>
-                
+
                 <div className="meditation-ambient-display">
-                  <p>Som ambiente: 
+                  <p>Som ambiente:
                     {backgroundSound === 'nature' && ' Natureza'}
                     {backgroundSound === 'rain' && ' Chuva'}
                     {backgroundSound === 'ocean' && ' Oceano'}
@@ -416,45 +420,45 @@ export default function MindfulnessApp() {
                   <h3>Técnicas de Relaxamento</h3>
                   <p>Escolha uma técnica abaixo para iniciar</p>
                 </div>
-                
+
                 <div className="technique-list">
                   <div className="technique-item">
                     <h4>Relaxamento Muscular Progressivo</h4>
                     <p>Tensione e solte os músculos para aliviar a tensão</p>
-                    <button 
+                    <button
                       className="action-button"
                       onClick={() => startRelaxationTechnique('muscle', 10 * 60)}
                     >
                       Iniciar (10 min)
                     </button>
                   </div>
-                  
+
                   <div className="technique-item">
                     <h4>Visualização</h4>
                     <p>Imagens mentais para acalmar a mente</p>
-                    <button 
+                    <button
                       className="action-button"
                       onClick={() => startRelaxationTechnique('visualization', 8 * 60)}
                     >
                       Iniciar (8 min)
                     </button>
                   </div>
-                  
+
                   <div className="technique-item">
                     <h4>Scanner Corporal</h4>
                     <p>Atenção focada por todo o seu corpo</p>
-                    <button 
+                    <button
                       className="action-button"
                       onClick={() => startRelaxationTechnique('bodyscan', 12 * 60)}
                     >
                       Iniciar (12 min)
                     </button>
                   </div>
-                  
+
                   <div className="technique-item">
                     <h4>Caminhada Consciente</h4>
                     <p>Técnica de meditação ao caminhar</p>
-                    <button 
+                    <button
                       className="action-button"
                       onClick={() => startRelaxationTechnique('walking', 15 * 60)}
                     >
@@ -479,9 +483,9 @@ export default function MindfulnessApp() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="relaxation-controls">
-                  <button 
+                  <button
                     className="action-button stop-button"
                     onClick={stopRelaxationTechnique}
                   >
@@ -553,36 +557,36 @@ export default function MindfulnessApp() {
               </div>
               <h3>Diário de Humor</h3>
             </div>
-            
+
             <div className="journal-entry-form">
               <div className="mood-selector">
                 <h4>Como você está se sentindo?</h4>
                 <div className="mood-options">
-                  <button 
+                  <button
                     className={`mood-option ${currentMood === 'great' ? 'selected' : ''}`}
                     onClick={() => setCurrentMood('great')}
                   >
                     😄 Ótimo
                   </button>
-                  <button 
+                  <button
                     className={`mood-option ${currentMood === 'good' ? 'selected' : ''}`}
                     onClick={() => setCurrentMood('good')}
                   >
                     🙂 Bom
                   </button>
-                  <button 
+                  <button
                     className={`mood-option ${currentMood === 'neutral' ? 'selected' : ''}`}
                     onClick={() => setCurrentMood('neutral')}
                   >
                     😐 Neutro
                   </button>
-                  <button 
+                  <button
                     className={`mood-option ${currentMood === 'stressed' ? 'selected' : ''}`}
                     onClick={() => setCurrentMood('stressed')}
                   >
                     😓 Estressado
                   </button>
-                  <button 
+                  <button
                     className={`mood-option ${currentMood === 'bad' ? 'selected' : ''}`}
                     onClick={() => setCurrentMood('bad')}
                   >
@@ -590,7 +594,7 @@ export default function MindfulnessApp() {
                   </button>
                 </div>
               </div>
-              
+
               <textarea
                 value={newJournalEntry}
                 onChange={(e) => setNewJournalEntry(e.target.value)}
@@ -598,8 +602,8 @@ export default function MindfulnessApp() {
                 rows={4}
                 className="journal-textarea"
               />
-              
-              <button 
+
+              <button
                 className="action-button journal-save-btn"
                 onClick={saveJournalEntry}
                 disabled={newJournalEntry.trim() === ''}
@@ -607,7 +611,7 @@ export default function MindfulnessApp() {
                 Salvar Entrada
               </button>
             </div>
-            
+
             {journalEntries.length > 0 && (
               <div className="journal-entries">
                 <h4>Entradas Anteriores</h4>
@@ -638,6 +642,76 @@ export default function MindfulnessApp() {
 
   return (
     <div className="app-container">
+      <header className="app-header relative">
+      <div className="header-main flex justify-between items-center px-6 py-4 bg-white shadow-sm">
+        <div className="header-left">
+          <h1 className="text-2xl font-bold text-gray-800">Mindfulness App</h1>
+        </div>
+        
+        <div className="header-right">
+          <button 
+            onClick={toggleMenu}
+            className="header-toggle p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Abrir menu"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Menu Dropdown */}
+      {isMenuOpen && (
+        <div className="absolute right-0 top-full w-80 bg-white shadow-lg border border-gray-200 rounded-b-lg z-50">
+          {/* Informações do Usuário */}
+          <div className="p-4 border-b border-gray-100">
+            <div className="flex items-center space-x-3">
+              <div className="user-avatar w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                <span>U</span>
+              </div>
+              <div className="user-details">
+                <div className="user-name text-lg font-semibold text-gray-800">Usuário</div>
+                <div className="plan-badge inline-block px-2 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                  Plano Básico
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <nav className="py-2">
+            <a href="#" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+              <BookOpen size={20} className="mr-3 text-blue-500" />
+              <span>Recomendações de Livros</span>
+            </a>
+            
+            <a href="#" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+              <User size={20} className="mr-3 text-gray-500" />
+              <span>Perfil</span>
+            </a>
+            
+            <a href="#" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+              <Settings size={20} className="mr-3 text-gray-500" />
+              <span>Configurações</span>
+            </a>
+            
+            <hr className="my-2 border-gray-100" />
+            
+            <a href="#" className="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition-colors">
+              <LogOut size={20} className="mr-3" />
+              <span>Sair</span>
+            </a>
+          </nav>
+        </div>
+      )}
+
+      {/* Overlay para fechar o menu */}
+      {isMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-20 z-40"
+          onClick={toggleMenu}
+        />
+      )}
+    </header>
       {/* Conteúdo Principal */}
       <main className="main-content">
         {renderContent()}
@@ -645,7 +719,7 @@ export default function MindfulnessApp() {
 
       {/* Grade de Recursos */}
       <div className="feature-grid">
-        <div 
+        <div
           className={`feature-grid-item ${activeTab === 'breathing' ? 'active' : ''}`}
           onClick={() => setActiveTab('breathing')}
         >
@@ -654,8 +728,8 @@ export default function MindfulnessApp() {
           </div>
           <span>Respiração</span>
         </div>
-        
-        <div 
+
+        <div
           className={`feature-grid-item ${activeTab === 'meditation' ? 'active' : ''}`}
           onClick={() => setActiveTab('meditation')}
         >
@@ -664,8 +738,8 @@ export default function MindfulnessApp() {
           </div>
           <span>Meditação</span>
         </div>
-        
-        <div 
+
+        <div
           className={`feature-grid-item ${activeTab === 'relaxation' ? 'active' : ''}`}
           onClick={() => setActiveTab('relaxation')}
         >
@@ -674,8 +748,8 @@ export default function MindfulnessApp() {
           </div>
           <span>Relaxamento</span>
         </div>
-        
-        <div 
+
+        <div
           className={`feature-grid-item ${activeTab === 'journal' ? 'active' : ''}`}
           onClick={() => setActiveTab('journal')}
         >
