@@ -323,7 +323,7 @@ export default function MindfulnessApp() {
       case 'breathing':
         return (
           <div className="exercise-container">
-            <h2 className="section-title">Exercício de Respiração</h2>
+            <h2 className="section-title-2">Exercício de Respiração</h2>
 
             <div className="breathing-wrapper">
               <div className={getBreathingCircleClass()}>
