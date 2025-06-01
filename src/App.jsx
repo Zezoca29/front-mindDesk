@@ -19,6 +19,8 @@ import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import MindfulnessApp from './pages/MindfulnessApp';
 import CadastroPremium from './pages/CadastroPremium';
+import { AuthProvider } from './pages/contexts/AuthContext';
+import ProtectedRoute from './pages/components/ProtectedRoute';
 
 // Componente Navbar separado
 function Navbar() {
@@ -396,19 +398,27 @@ function HomePage() {
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen">
-        {/* Define Routes */}
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/cadastro" element={<Cadastro />} />
-          <Route path="/cadastro-premium" element={<CadastroPremium />} />
-          <Route path="/mind-desk" element={<MindfulnessApp />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/cadastro-premium" element={<CadastroPremium />} />
+            <Route
+              path="/mind-desk"
+              element={
+                <ProtectedRoute>
+                  <MindfulnessApp />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

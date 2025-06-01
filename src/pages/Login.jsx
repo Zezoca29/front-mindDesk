@@ -1,48 +1,25 @@
 import { useState } from 'react';
+import { useLogin } from './hooks/useLogin';
 import './style.css';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { handleLogin, loading, error, setError } = useLogin();
   
-  const handleLogin = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
     
+    if (!email || !password) {
+      setError('Por favor, preencha todos os campos.');
+      return;
+    }
+
     try {
-      const response = await fetch('https://faed-2804-7f0-7d80-1e00-c48c-9ad2-70f3-ee6b.ngrok-free.app/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      if (response.status === 200) {
-        const data = await response.json();
-        
-        // Armazenar token no cache do servidor
-        sessionStorage.setItem('authToken', data.token);
-        
-        // Verificar se o token está no cache
-        const cachedToken = sessionStorage.getItem('authToken');
-        
-        if (cachedToken) {
-          // Redirecionar para a página principal
-          window.location.href = '/mind-desk';
-        } else {
-          setError('Falha ao armazenar credenciais. Tente novamente.');
-        }
-      } else {
-        setError('Credenciais inválidas. Verifique seu email e senha.');
-      }
+      await handleLogin(email, password);
     } catch (err) {
-      setError('Erro ao conectar com o servidor. Tente novamente mais tarde.');
-      console.error('Login error:', err);
-    } finally {
-      setLoading(false);
+      // Erro já tratado no hook useLogin
+      console.error('Login failed:', err);
     }
   };
   
@@ -60,7 +37,7 @@ const Login = () => {
           </div>
         )}
         
-        <div className="mt-8 space-y-6">
+        <form onSubmit={onSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -75,6 +52,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="seu@email.com"
+                disabled={loading}
               />
             </div>
             
@@ -91,20 +69,21 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="••••••••"
+                disabled={loading}
               />
             </div>
           </div>
           
           <div>
             <button
-              onClick={handleLogin}
+              type="submit"
               disabled={loading}
-              className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Processando...' : 'Entrar'}
             </button>
           </div>
-        </div>
+        </form>
         
         <div className="text-center mt-4">
           <a href="#" className="text-sm text-blue-600 hover:text-blue-800">
