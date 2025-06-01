@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Leaf, 
-  Bell, 
-  Menu, 
-  X, 
-  BookOpen, 
-  User, 
-  BarChart3, 
-  Settings, 
-  LogOut, 
-  ChevronRight, 
-  Heart, 
+import {
+  Leaf,
+  Bell,
+  Menu,
+  X,
+  BookOpen,
+  User,
+  BarChart3,
+  Settings,
+  LogOut,
+  ChevronRight,
+  Heart,
   Share2,
   Sun,
   Moon,
@@ -23,10 +23,38 @@ const MindfulnessHeader = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Carregar informações do usuário do localStorage
+  useEffect(() => {
+    const loadUserInfo = () => {
+      try {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          setUserInfo(parsedData);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+      }
+    };
+
+    loadUserInfo();
+
+    // Escutar mudanças no localStorage (caso seja atualizado em outro lugar)
+    const handleStorageChange = (e) => {
+      if (e.key === 'userData') {
+        loadUserInfo();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const toggleMenu = () => {
@@ -38,9 +66,9 @@ const MindfulnessHeader = () => {
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString('pt-BR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -50,6 +78,62 @@ const MindfulnessHeader = () => {
     if (hour < 18) return 'Boa tarde';
     return 'Boa noite';
   };
+
+  const getUserDisplayName = () => {
+    if (userInfo && userInfo.user) {
+      if (userInfo.user.nome) {
+        return userInfo.user.nome;
+      }
+      if (userInfo.user.email) {
+        return userInfo.user.email.split('@')[0];
+      }
+    }
+    return 'Usuário';
+  };
+
+  const getUserInitials = () => {
+    const displayName = getUserDisplayName();
+    return displayName ? displayName.charAt(0).toUpperCase() : 'U';
+  };
+
+  const getSubscriptionStatus = () => {
+    if (userInfo && userInfo.user && userInfo.user.subscriptionStatus) {
+      return userInfo.user.subscriptionStatus;
+    }
+    return 'free';
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const getSubscriptionLabel = () => {
+    const status = getSubscriptionStatus();
+    switch (status) {
+      case 'premium':
+        return 'Plano Premium';
+      case 'pro':
+        return 'Plano Pro';
+      case 'free':
+      default:
+        return 'Plano Gratuito';
+    }
+  };
+
+  const getSubscriptionColor = () => {
+    const status = getSubscriptionStatus();
+    switch (status) {
+      case 'premium':
+        return 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300';
+      case 'pro':
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300';
+      case 'free':
+      default:
+        return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300';
+    }
+  };
+
 
   return (
     <div className={`${isDarkMode ? 'dark' : ''}`}>
@@ -352,7 +436,7 @@ const MindfulnessHeader = () => {
                 <div className="notification-badge absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-md"></div>
                 <Sparkles size={12} className="particle-3 absolute -bottom-1 -left-1 text-yellow-300" />
               </div>
-              
+
               {/* Brand info */}
               <div className="space-y-1">
                 <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-md tracking-tight">
@@ -369,7 +453,7 @@ const MindfulnessHeader = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Header actions */}
             <div className="flex items-center gap-2">
               {/* Hora atual */}
@@ -385,7 +469,7 @@ const MindfulnessHeader = () => {
               >
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              
+
               {/* Notificações */}
               <div className="relative">
                 <button className="interactive-button glass-effect p-2.5 rounded-xl text-white hover:scale-105 focus-ring">
@@ -393,7 +477,7 @@ const MindfulnessHeader = () => {
                 </button>
                 <div className="notification-badge absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full border-2 border-white"></div>
               </div>
-              
+
               {/* Menu toggle */}
               <button
                 onClick={toggleMenu}
@@ -417,7 +501,7 @@ const MindfulnessHeader = () => {
                 </span>
               </div>
               <div className="progress-bar w-full bg-white bg-opacity-30 rounded-full h-3 overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-1000 ease-out shadow-sm"
                   style={{ width: '75%' }}
                 >
@@ -457,107 +541,115 @@ const MindfulnessHeader = () => {
             <div className="p-6 bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-b border-gray-200 dark:border-slate-600">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg border-4 border-white dark:border-slate-700">
-                  <span>U</span>
+                  <span>
+                    {userInfo && userInfo.user ? getUserInitials() : 'U'}
+                  </span>
                 </div>
                 <div className="flex-1">
                   <div className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                    Usuário
+                    {userInfo && userInfo.user ? getUserDisplayName() : 'Usuário'}
                   </div>
+                  {userInfo && userInfo.user && userInfo.user.email && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {userInfo.user.email}
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 mt-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm rounded-full font-medium">
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 ${getSubscriptionColor()} text-sm rounded-full font-medium`}>
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      Plano Premium
+                      {getSubscriptionLabel()}
                     </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Estatísticas rápidas */}
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="stat-card bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
-                  <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                    {streak}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Dias seguidos
-                  </div>
+            </div>
+
+            {/* Estatísticas rápidas */}
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="stat-card bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                  {streak}
                 </div>
-                <div className="stat-card bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    142
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Min. totais
-                  </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Dias seguidos
+                </div>
+              </div>
+              <div className="stat-card bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  142
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Min. totais
                 </div>
               </div>
             </div>
 
-            {/* Menu items */}
-            <nav className="custom-scroll flex-1 py-2 overflow-y-auto">
-              {[
-                { icon: BookOpen, label: 'Recomendações', subtitle: 'Livros e conteúdos', color: 'blue' },
-                { icon: User, label: 'Perfil', subtitle: 'Suas informações', color: 'gray' },
-                { icon: BarChart3, label: 'Estatísticas', subtitle: 'Seu progresso', color: 'green' },
-                { icon: Settings, label: 'Configurações', subtitle: 'Personalizar app', color: 'purple' }
-              ].map((item, index) => (
-                <a
-                  key={index}
-                  href="#"
-                  className="menu-item flex items-center px-6 py-4 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 border-l-4 border-transparent hover:border-indigo-500 group"
-                >
-                  <item.icon 
-                    size={22} 
-                    className={`mr-4 text-${item.color}-500 group-hover:text-indigo-500 group-hover:scale-110 transition-all duration-200`} 
-                  />
-                  <div className="flex-1">
-                    <span className="font-medium block">{item.label}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">{item.subtitle}</span>
-                  </div>
-                  <ChevronRight size={16} className="text-gray-400 group-hover:text-indigo-500 transition-colors" />
-                </a>
-              ))}
-
-              <hr className="my-4 border-gray-200 dark:border-slate-600 mx-6" />
-
-              <a
-                href="#"
-                className="menu-item flex items-center px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 hover:text-red-700 dark:hover:text-red-300 group border-l-4 border-transparent hover:border-red-500"
-              >
-                <LogOut size={22} className="mr-4 group-hover:scale-110 transition-transform" />
-                <div className="flex-1">
-                  <span className="font-medium block">Sair</span>
-                  <span className="text-xs text-red-400">Encerrar sessão</span>
-                </div>
-              </a>
-            </nav>
-
-            {/* Footer do menu */}
-            <div className="p-6 border-t border-gray-200 dark:border-slate-600 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Leaf size={16} className="text-indigo-500" />
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Mindfulness App
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  v2.0 - Sua jornada de bem-estar
-                </p>
-                <div className="flex justify-center gap-3 mt-3">
-                  <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
-                    <Heart size={16} className="text-red-500" />
-                  </button>
-                  <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
-                    <Share2 size={16} className="text-indigo-500" />
-                  </button>
-                </div>
+        {/* Menu items */}
+        <nav className="custom-scroll flex-1 py-2 overflow-y-auto">
+          {[
+            { icon: BookOpen, label: 'Recomendações', subtitle: 'Livros e conteúdos', color: 'blue' },
+            { icon: User, label: 'Perfil', subtitle: 'Suas informações', color: 'gray' },
+            { icon: BarChart3, label: 'Estatísticas', subtitle: 'Seu progresso', color: 'green' },
+            { icon: Settings, label: 'Configurações', subtitle: 'Personalizar app', color: 'purple' }
+          ].map((item, index) => (
+            <a
+              key={index}
+              href="#"
+              className="menu-item flex items-center px-6 py-4 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 border-l-4 border-transparent hover:border-indigo-500 group"
+            >
+              <item.icon
+                size={22}
+                className={`mr-4 text-${item.color}-500 group-hover:text-indigo-500 group-hover:scale-110 transition-all duration-200`}
+              />
+              <div className="flex-1">
+                <span className="font-medium block">{item.label}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{item.subtitle}</span>
               </div>
+              <ChevronRight size={16} className="text-gray-400 group-hover:text-indigo-500 transition-colors" />
+            </a>
+          ))}
+
+          <hr className="my-4 border-gray-200 dark:border-slate-600 mx-6" />
+
+          <a
+            href="#"
+            className="menu-item flex items-center px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 hover:text-red-700 dark:hover:text-red-300 group border-l-4 border-transparent hover:border-red-500"
+          >
+            <LogOut size={22} className="mr-4 group-hover:scale-110 transition-transform" />
+            <div className="flex-1">
+              <span className="font-medium block">Sair</span>
+              <span className="text-xs text-red-400">Encerrar sessão</span>
+            </div>
+          </a>
+        </nav>
+
+        {/* Footer do menu */}
+        <div className="p-6 border-t border-gray-200 dark:border-slate-600 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Leaf size={16} className="text-indigo-500" />
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                Mindfulness App
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              v2.0 - Sua jornada de bem-estar
+            </p>
+            <div className="flex justify-center gap-3 mt-3">
+              <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
+                <Heart size={16} className="text-red-500" />
+              </button>
+              <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
+                <Share2 size={16} className="text-indigo-500" />
+              </button>
             </div>
           </div>
-        )}
-      </header>
+        </div>
     </div>
+  )
+}
+      </header >
+    </div >
   );
 };
 
