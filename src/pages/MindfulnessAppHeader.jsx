@@ -17,44 +17,45 @@ import {
   Sparkles,
   Award
 } from 'lucide-react';
+import { useAuth } from './contexts/AuthContext'; 
 
 const MindfulnessHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
-  const [userInfo, setUserInfo] = useState(null);
+
+   const { user: userInfo, isAuthenticated, logout } = useAuth();
+
+   // Para drag do menu
+  const menuRef = React.useRef(null);
+  const [menuOffset, setMenuOffset] = useState(0);
+  const [dragStartY, setDragStartY] = useState(null);
+
+  // Funções para drag
+  const handleDragStart = (e) => {
+    setDragStartY(e.touches ? e.touches[0].clientY : e.clientY);
+  };
+
+  const handleDragMove = (e) => {
+    if (dragStartY !== null) {
+      const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+      const offset = currentY - dragStartY;
+      if (offset > 0) setMenuOffset(offset);
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (menuOffset > 120) {
+      setIsMenuOpen(false);
+    }
+    setMenuOffset(0);
+    setDragStartY(null);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
-  }, []);
-
-  // Carregar informações do usuário do localStorage
-  useEffect(() => {
-    const loadUserInfo = () => {
-      try {
-        const userData = localStorage.getItem('userData');
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          setUserInfo(parsedData);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados do usuário:', error);
-      }
-    };
-
-    loadUserInfo();
-
-    // Escutar mudanças no localStorage (caso seja atualizado em outro lugar)
-    const handleStorageChange = (e) => {
-      if (e.key === 'userData') {
-        loadUserInfo();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const toggleMenu = () => {
@@ -80,12 +81,24 @@ const MindfulnessHeader = () => {
   };
 
   const getUserDisplayName = () => {
-    if (userInfo && userInfo.user) {
-      if (userInfo.user.nome) {
-        return userInfo.user.nome;
+    console.log('userInfo atual:', userInfo);
+    
+    if (userInfo) {
+      // Verifica se os dados estão no formato { success: true, user: {...} }
+      if (userInfo.success && userInfo.user) {
+        if (userInfo.user.nome) {
+          return userInfo.user.nome;
+        }
+        if (userInfo.user.email) {
+          return userInfo.user.email.split('@')[0];
+        }
       }
-      if (userInfo.user.email) {
-        return userInfo.user.email.split('@')[0];
+      // Verifica se os dados estão diretamente no userInfo
+      else if (userInfo.nome) {
+        return userInfo.nome;
+      }
+      else if (userInfo.email) {
+        return userInfo.email.split('@')[0];
       }
     }
     return 'Usuário';
@@ -93,14 +106,49 @@ const MindfulnessHeader = () => {
 
   const getUserInitials = () => {
     const displayName = getUserDisplayName();
-    return displayName ? displayName.charAt(0).toUpperCase() : 'U';
+    return displayName && displayName !== 'Usuário' ? displayName.charAt(0).toUpperCase() : 'U';
   };
 
   const getSubscriptionStatus = () => {
-    if (userInfo && userInfo.user && userInfo.user.subscriptionStatus) {
-      return userInfo.user.subscriptionStatus;
+    if (userInfo) {
+      // Verifica formato { success: true, user: {...} }
+      if (userInfo.success && userInfo.user && userInfo.user.subscriptionStatus) {
+        return userInfo.user.subscriptionStatus;
+      }
+      // Verifica formato direto
+      else if (userInfo.subscriptionStatus) {
+        return userInfo.subscriptionStatus;
+      }
     }
     return 'free';
+  };
+
+  const getUserEmail = () => {
+    if (userInfo) {
+      // Verifica formato { success: true, user: {...} }
+      if (userInfo.success && userInfo.user && userInfo.user.email) {
+        return userInfo.user.email;
+      }
+      // Verifica formato direto
+      else if (userInfo.email) {
+        return userInfo.email;
+      }
+    }
+    return '';
+  };
+
+  const getUserPoints = () => {
+    if (userInfo) {
+      // Verifica formato { success: true, user: {...} }
+      if (userInfo.success && userInfo.user && userInfo.user.points) {
+        return userInfo.user.points;
+      }
+      // Verifica formato direto
+      else if (userInfo.points) {
+        return userInfo.points;
+      }
+    }
+    return 0;
   };
 
   const formatDate = (dateString) => {
@@ -111,6 +159,8 @@ const MindfulnessHeader = () => {
   const getSubscriptionLabel = () => {
     const status = getSubscriptionStatus();
     switch (status) {
+      case 'premium_plus':
+        return 'Plano Premium Plus';
       case 'premium':
         return 'Plano Premium';
       case 'pro':
@@ -124,6 +174,8 @@ const MindfulnessHeader = () => {
   const getSubscriptionColor = () => {
     const status = getSubscriptionStatus();
     switch (status) {
+      case 'premium_plus':
+        return 'bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 text-purple-700 dark:text-purple-300';
       case 'premium':
         return 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300';
       case 'pro':
@@ -134,6 +186,10 @@ const MindfulnessHeader = () => {
     }
   };
 
+  // Debug: mostrar dados atuais
+  console.log('Estado atual - userInfo:', userInfo);
+  console.log('Nome do usuário:', getUserDisplayName());
+  console.log('Status da assinatura:', getSubscriptionStatus());
 
   return (
     <div className={`${isDarkMode ? 'dark' : ''}`}>
@@ -513,41 +569,55 @@ const MindfulnessHeader = () => {
         </div>
 
         {/* Overlay para fechar menu */}
-        {isMenuOpen && (
-          <div
-            className="overlay-blur fixed inset-0 bg-black bg-opacity-60 z-40 transition-opacity duration-300"
-            onClick={toggleMenu}
-          />
-        )}
+      {isMenuOpen && (
+        <div
+          className="overlay-blur fixed inset-0 bg-black bg-opacity-60 z-40 transition-opacity duration-300"
+          onClick={toggleMenu}
+        />
+      )}
 
-        {/* Menu lateral */}
-        {isMenuOpen && (
-          <div className="side-menu fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-slate-900 shadow-2xl z-50">
-            {/* Header do menu */}
-            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-slate-800 dark:to-slate-700">
-              <div className="flex items-center gap-3">
-                <Leaf size={24} className="text-white" />
-                <h2 className="text-xl font-bold text-white">Menu</h2>
-              </div>
-              <button
-                onClick={toggleMenu}
-                className="interactive-button p-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20"
-              >
-                <X size={24} />
-              </button>
+      {/* Menu lateral arrastável */}
+      {isMenuOpen && (
+        <div
+          ref={menuRef}
+          className="side-menu fixed inset-0 sm:inset-y-0 sm:right-0 sm:left-auto h-full w-full sm:w-96 bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col"
+          style={{
+            transform: menuOffset ? `translateY(${menuOffset}px)` : 'none',
+            transition: menuOffset ? 'none' : 'transform 0.3s cubic-bezier(0.4,0,0.2,1)'
+          }}
+          onMouseDown={handleDragStart}
+          onMouseMove={handleDragMove}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+          onTouchStart={handleDragStart}
+          onTouchMove={handleDragMove}
+          onTouchEnd={handleDragEnd}
+        >
+          {/* Header do menu */}
+          <div className="flex items-center justify-between p-6 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-slate-800 dark:to-slate-700 cursor-grab active:cursor-grabbing select-none">
+            <div className="flex items-center gap-3">
+              <Leaf size={24} className="text-white" />
+              <h2 className="text-xl font-bold text-white">Menu</h2>
             </div>
+            <button
+              onClick={toggleMenu}
+              className="interactive-button p-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20"
+            >
+              <X size={24} />
+            </button>
+          </div>
 
             {/* Perfil do usuário */}
             <div className="p-6 bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-b border-gray-200 dark:border-slate-600">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg border-4 border-white dark:border-slate-700">
                   <span>
-                    {userInfo && userInfo.user ? getUserInitials() : 'U'}
+                    {getUserInitials()}
                   </span>
                 </div>
                 <div className="flex-1">
                   <div className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                    {userInfo && userInfo.user ? getUserDisplayName() : 'Usuário'}
+                    {getUserDisplayName()}
                   </div>
                   {userInfo && userInfo.user && userInfo.user.email && (
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -611,17 +681,18 @@ const MindfulnessHeader = () => {
 
           <hr className="my-4 border-gray-200 dark:border-slate-600 mx-6" />
 
-          <a
-            href="#"
-            className="menu-item flex items-center px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 hover:text-red-700 dark:hover:text-red-300 group border-l-4 border-transparent hover:border-red-500"
-          >
-            <LogOut size={22} className="mr-4 group-hover:scale-110 transition-transform" />
-            <div className="flex-1">
-              <span className="font-medium block">Sair</span>
-              <span className="text-xs text-red-400">Encerrar sessão</span>
-            </div>
-          </a>
-        </nav>
+          {/* Botão de logout funcional */}
+            <button
+              onClick={logout}
+              className="menu-item flex items-center w-full px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 hover:text-red-700 dark:hover:text-red-300 group border-l-4 border-transparent hover:border-red-500"
+            >
+              <LogOut size={22} className="mr-4 group-hover:scale-110 transition-transform" />
+              <div className="flex-1 text-left">
+                <span className="font-medium block">Sair</span>
+                <span className="text-xs text-red-400">Encerrar sessão</span>
+              </div>
+            </button>
+          </nav>
 
         {/* Footer do menu */}
         <div className="p-6 border-t border-gray-200 dark:border-slate-600 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
