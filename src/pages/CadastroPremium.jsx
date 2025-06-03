@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, CreditCard, AlertCircle } from 'lucide-react';
 import './CadastroPremium.css';
@@ -33,6 +33,7 @@ function CadastroPremium() {
   // Constantes para polling
   const MAX_POLL_ATTEMPTS = 20; // 10 minutos (30s * 20)
   const POLL_INTERVAL = 30000; // 30 segundos
+  const pollIntervalRef = useRef(null);
 
   // Inicializa o SDK do Mercado Pago
   useEffect(() => {

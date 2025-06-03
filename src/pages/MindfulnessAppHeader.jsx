@@ -17,7 +17,9 @@ import {
   Sparkles,
   Award
 } from 'lucide-react';
-import { useAuth } from './contexts/AuthContext'; 
+import { useAuth } from './contexts/AuthContext';
+import { Link } from 'react-router-dom';
+
 
 const MindfulnessHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,9 +27,9 @@ const MindfulnessHeader = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
 
-   const { user: userInfo, isAuthenticated, logout } = useAuth();
+  const { user: userInfo, isAuthenticated, logout } = useAuth();
 
-   // Para drag do menu
+  // Para drag do menu
   const menuRef = React.useRef(null);
   const [menuOffset, setMenuOffset] = useState(0);
   const [dragStartY, setDragStartY] = useState(null);
@@ -82,7 +84,7 @@ const MindfulnessHeader = () => {
 
   const getUserDisplayName = () => {
     console.log('userInfo atual:', userInfo);
-    
+
     if (userInfo) {
       // Verifica se os dados estão no formato { success: true, user: {...} }
       if (userInfo.success && userInfo.user) {
@@ -243,6 +245,26 @@ const MindfulnessHeader = () => {
           }
         }
 
+        @keyframes slideInDown {
+          from {
+            transform: translateY(-100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
         /* Efeitos para o header */
         .mindfulness-header {
           position: relative;
@@ -352,11 +374,16 @@ const MindfulnessHeader = () => {
           animation: shimmer 2s infinite;
         }
 
-        /* Menu lateral aprimorado */
+        /* Menu lateral responsivo e melhorado */
         .side-menu {
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 9999 !important;
+        }
+
+        .side-menu-mobile {
+          animation: slideInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .menu-item {
@@ -438,11 +465,13 @@ const MindfulnessHeader = () => {
           transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
-        /* Overlay com blur */
+        /* Overlay com blur aprimorado */
         .overlay-blur {
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);
           transition: all 0.3s ease;
+          animation: fadeIn 0.3s ease;
+          z-index: 9998 !important;
         }
 
         /* Efeito de digitação para o tempo */
@@ -454,21 +483,123 @@ const MindfulnessHeader = () => {
 
         /* Scroll customizado */
         .custom-scroll::-webkit-scrollbar {
-          width: 8px;
+          width: 6px;
         }
 
         .custom-scroll::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.1);
-          border-radius: 4px;
+          border-radius: 3px;
         }
 
         .custom-scroll::-webkit-scrollbar-thumb {
           background: var(--mindfulness-primary);
-          border-radius: 4px;
+          border-radius: 3px;
         }
 
         .custom-scroll::-webkit-scrollbar-thumb:hover {
           background: var(--mindfulness-secondary);
+        }
+
+        /* Responsividade aprimorada */
+        @media (max-width: 640px) {
+          .mindfulness-header {
+            padding: 0.5rem;
+          }
+          
+          .side-menu {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-height: 100vh;
+          }
+          
+          .menu-item {
+            padding: 1rem 1.5rem;
+          }
+          
+          .stat-card {
+            padding: 1rem;
+          }
+        }
+
+        @media (min-width: 641px) {
+          .side-menu {
+            width: 400px !important;
+            max-width: 90vw;
+            height: 100vh !important;
+            right: 0 !important;
+            left: auto !important;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .side-menu {
+            width: 420px !important;
+            max-width: 30vw;
+          }
+        }
+
+        /* Menu container com posicionamento fixo */
+        .menu-container {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          z-index: 9999 !important;
+          pointer-events: none;
+        }
+
+        .menu-container.active {
+          pointer-events: all;
+        }
+
+        .menu-backdrop {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);
+          animation: fadeIn 0.3s ease;
+        }
+
+        .menu-panel {
+          position: absolute !important;
+          top: 0 !important;
+          right: 0 !important;
+          height: 100vh !important;
+          background: white;
+          box-shadow: -20px 0 60px rgba(0, 0, 0, 0.3);
+          animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          flex-direction: column;
+        }
+
+        .dark .menu-panel {
+          background: rgb(15, 23, 42);
+        }
+
+        @media (max-width: 640px) {
+          .menu-panel {
+            width: 100vw !important;
+            animation: slideInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+        }
+
+        @media (min-width: 641px) {
+          .menu-panel {
+            width: 400px !important;
+            max-width: 90vw;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .menu-panel {
+            width: 420px !important;
+            max-width: 30vw;
+          }
         }
       `}</style>
 
@@ -569,43 +700,43 @@ const MindfulnessHeader = () => {
         </div>
 
         {/* Overlay para fechar menu */}
-      {isMenuOpen && (
-        <div
-          className="overlay-blur fixed inset-0 bg-black bg-opacity-60 z-40 transition-opacity duration-300"
-          onClick={toggleMenu}
-        />
-      )}
+        {isMenuOpen && (
+          <div
+            className="overlay-blur fixed inset-0 bg-black bg-opacity-60 z-40 transition-opacity duration-300"
+            onClick={toggleMenu}
+          />
+        )}
 
-      {/* Menu lateral arrastável */}
-      {isMenuOpen && (
-        <div
-          ref={menuRef}
-          className="side-menu fixed inset-0 sm:inset-y-0 sm:right-0 sm:left-auto h-full w-full sm:w-96 bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col"
-          style={{
-            transform: menuOffset ? `translateY(${menuOffset}px)` : 'none',
-            transition: menuOffset ? 'none' : 'transform 0.3s cubic-bezier(0.4,0,0.2,1)'
-          }}
-          onMouseDown={handleDragStart}
-          onMouseMove={handleDragMove}
-          onMouseUp={handleDragEnd}
-          onMouseLeave={handleDragEnd}
-          onTouchStart={handleDragStart}
-          onTouchMove={handleDragMove}
-          onTouchEnd={handleDragEnd}
-        >
-          {/* Header do menu */}
-          <div className="flex items-center justify-between p-6 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-slate-800 dark:to-slate-700 cursor-grab active:cursor-grabbing select-none">
-            <div className="flex items-center gap-3">
-              <Leaf size={24} className="text-white" />
-              <h2 className="text-xl font-bold text-white">Menu</h2>
+        {/* Menu lateral arrastável */}
+        {isMenuOpen && (
+          <div
+            ref={menuRef}
+            className="side-menu fixed inset-0 sm:inset-y-0 sm:right-0 sm:left-auto h-full w-full sm:w-96 bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col"
+            style={{
+              transform: menuOffset ? `translateY(${menuOffset}px)` : 'none',
+              transition: menuOffset ? 'none' : 'transform 0.3s cubic-bezier(0.4,0,0.2,1)'
+            }}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+          >
+            {/* Header do menu */}
+            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-slate-800 dark:to-slate-700 cursor-grab active:cursor-grabbing select-none">
+              <div className="flex items-center gap-3">
+                <Leaf size={24} className="text-white" />
+                <h2 className="text-xl font-bold text-white">Menu</h2>
+              </div>
+              <button
+                onClick={toggleMenu}
+                className="interactive-button p-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20"
+              >
+                <X size={24} />
+              </button>
             </div>
-            <button
-              onClick={toggleMenu}
-              className="interactive-button p-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20"
-            >
-              <X size={24} />
-            </button>
-          </div>
 
             {/* Perfil do usuário */}
             <div className="p-6 bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 border-b border-gray-200 dark:border-slate-600">
@@ -654,71 +785,96 @@ const MindfulnessHeader = () => {
               </div>
             </div>
 
-        {/* Menu items */}
-        <nav className="custom-scroll flex-1 py-2 overflow-y-auto">
-          {[
-            { icon: BookOpen, label: 'Recomendações', subtitle: 'Livros e conteúdos', color: 'blue' },
-            { icon: User, label: 'Perfil', subtitle: 'Suas informações', color: 'gray' },
-            { icon: BarChart3, label: 'Estatísticas', subtitle: 'Seu progresso', color: 'green' },
-            { icon: Settings, label: 'Configurações', subtitle: 'Personalizar app', color: 'purple' }
-          ].map((item, index) => (
-            <a
-              key={index}
-              href="#"
-              className="menu-item flex items-center px-6 py-4 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 border-l-4 border-transparent hover:border-indigo-500 group"
-            >
-              <item.icon
-                size={22}
-                className={`mr-4 text-${item.color}-500 group-hover:text-indigo-500 group-hover:scale-110 transition-all duration-200`}
-              />
-              <div className="flex-1">
-                <span className="font-medium block">{item.label}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{item.subtitle}</span>
-              </div>
-              <ChevronRight size={16} className="text-gray-400 group-hover:text-indigo-500 transition-colors" />
-            </a>
-          ))}
+            {/* Menu items */}
+            <nav className="custom-scroll flex-1 py-2 overflow-y-auto">
+              {[
+                {
+                  icon: BookOpen,
+                  label: 'Recomendações',
+                  subtitle: 'Livros e conteúdos',
+                  color: 'blue',
+                  href: '/recomendacao'
+                },
+                {
+                  icon: User,
+                  label: 'Perfil',
+                  subtitle: 'Suas informações',
+                  color: 'gray',
+                  href: '/perfil'
+                },
+                {
+                  icon: BarChart3,
+                  label: 'Estatísticas',
+                  subtitle: 'Seu progresso',
+                  color: 'green',
+                  href: '/estatisticas'
+                },
+                {
+                  icon: Settings,
+                  label: 'Configurações',
+                  subtitle: 'Personalizar app',
+                  color: 'purple',
+                  href: '/config'
+                }
+              ].map((item, index) => (
+                <Link
+                  key={index}
+                  to={item.href}
+                  className="menu-item flex items-center px-6 py-4 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 border-l-4 border-transparent hover:border-indigo-500 group"
+                  onClick={() => setIsMenuOpen(false)} // Fecha o menu ao navegar
+                >
+                  <item.icon
+                    size={22}
+                    className={`mr-4 text-${item.color}-500 group-hover:text-indigo-500 group-hover:scale-110 transition-all duration-200`}
+                  />
+                  <div className="flex-1">
+                    <span className="font-medium block">{item.label}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{item.subtitle}</span>
+                  </div>
+                  <ChevronRight size={16} className="text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                </Link>
+              ))}
 
-          <hr className="my-4 border-gray-200 dark:border-slate-600 mx-6" />
+              <hr className="my-4 border-gray-200 dark:border-slate-600 mx-6" />
 
-          {/* Botão de logout funcional */}
-            <button
-              onClick={logout}
-              className="menu-item flex items-center w-full px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 hover:text-red-700 dark:hover:text-red-300 group border-l-4 border-transparent hover:border-red-500"
-            >
-              <LogOut size={22} className="mr-4 group-hover:scale-110 transition-transform" />
-              <div className="flex-1 text-left">
-                <span className="font-medium block">Sair</span>
-                <span className="text-xs text-red-400">Encerrar sessão</span>
-              </div>
-            </button>
-          </nav>
-
-        {/* Footer do menu */}
-        <div className="p-6 border-t border-gray-200 dark:border-slate-600 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Leaf size={16} className="text-indigo-500" />
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Mindfulness App
-              </span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              v2.0 - Sua jornada de bem-estar
-            </p>
-            <div className="flex justify-center gap-3 mt-3">
-              <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
-                <Heart size={16} className="text-red-500" />
+              {/* Botão de logout funcional */}{'}'}
+              <button
+                onClick={logout}
+                className="menu-item flex items-center w-full px-6 py-4 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 hover:text-red-700 dark:hover:text-red-300 group border-l-4 border-transparent hover:border-red-500"
+              >
+                <LogOut size={22} className="mr-4 group-hover:scale-110 transition-transform" />
+                <div className="flex-1 text-left">
+                  <span className="font-medium block">Sair</span>
+                  <span className="text-xs text-red-400">Encerrar sessão</span>
+                </div>
               </button>
-              <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
-                <Share2 size={16} className="text-indigo-500" />
-              </button>
+            </nav>
+
+            {/* Footer do menu */}
+            <div className="p-6 border-t border-gray-200 dark:border-slate-600 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Leaf size={16} className="text-indigo-500" />
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Mindfulness App
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  v2.0 - Sua jornada de bem-estar
+                </p>
+                <div className="flex justify-center gap-3 mt-3">
+                  <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
+                    <Heart size={16} className="text-red-500" />
+                  </button>
+                  <button className="interactive-button stat-card p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm hover:shadow-md">
+                    <Share2 size={16} className="text-indigo-500" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-    </div>
-  )
-}
+        )
+        }
       </header >
     </div >
   );

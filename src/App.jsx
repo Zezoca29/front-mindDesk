@@ -21,6 +21,10 @@ import MindfulnessApp from './pages/MindfulnessApp';
 import CadastroPremium from './pages/CadastroPremium';
 import { AuthProvider } from './pages/contexts/AuthContext';
 import ProtectedRoute from './pages/components/ProtectedRoute';
+import Recommendation from './pages/Recomendation';
+import Perfil from './pages/Perfil';
+import Estatisticas from './pages/Estatisticas';
+import Config from './pages/Config';
 
 // Componente Navbar separado
 function Navbar() {
@@ -406,6 +410,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/cadastro-premium" element={<CadastroPremium />} />
+            <Route path="/recomendacao" element={<ProtectedRoute><Recommendation /></ProtectedRoute>} />
+            <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+            <Route path ="/estatisticas" element={<ProtectedRoute><Estatisticas /></ProtectedRoute>} />
+            <Route path="/config" element={<ProtectedRoute><Config /></ProtectedRoute>} />
             <Route
               path="/mind-desk"
               element={
