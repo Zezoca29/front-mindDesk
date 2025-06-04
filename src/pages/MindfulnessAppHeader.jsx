@@ -803,13 +803,6 @@ const MindfulnessHeader = () => {
                   href: '/perfil'
                 },
                 {
-                  icon: BarChart3,
-                  label: 'Estatísticas',
-                  subtitle: 'Seu progresso',
-                  color: 'green',
-                  href: '/estatisticas'
-                },
-                {
                   icon: Settings,
                   label: 'Configurações',
                   subtitle: 'Personalizar app',
