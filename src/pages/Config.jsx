@@ -269,7 +269,7 @@ const Config = () => {
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 group ${activeTab === tab.id
+                                        className={`w-full max-w-md sm:max-w-lg flex items-center gap-3 px-4 py-4 sm:py-5 rounded-xl text-left transition-all duration-200 group tab-active ${activeTab === tab.id
                                                 ? 'tab-active'
                                                 : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'
                                             }`}

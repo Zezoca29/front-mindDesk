@@ -33,10 +33,10 @@ import './Perfil.css'
 const mockUserData = {
     success: true,
     user: {
-        nome: 'João Silva',
-        email: 'joao.silva@email.com',
-        cargo: 'Desenvolvedor Frontend',
-        telefone: '(11) 99999-9999',
+        nome: 'Kaique Zêza',
+        email: 'kaiquezeza@email.com',
+        cargo: 'Engenheiro de Software',
+        telefone: '(11) 93221-4535',
         empresa: 'Zez Technology',
         subscriptionStatus: 'free',
         points: 1247,
@@ -237,29 +237,26 @@ const Perfil = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
                     <div className="relative z-10">
                         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-                            <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-6 text-black">
                                 <div className="relative">
-                                    <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-xl">
+                                    <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-black font-bold text-2xl shadow-xl">
                                         {getUserInitials()}
-                                    </div>
-                                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
-                                        <CheckCircle size={16} className="text-white" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-1 ml-2">
-                                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+                                    <h1 className="text-3xl font-bold text-gray-800 dark:text-black">
                                         {getUserDisplayName()}
                                     </h1>
                                     <p className="text-gray-600 dark:text-gray-300">
                                         {userInfo?.user?.email}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-3 mt-2">
-                                        <div className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r ${getSubscriptionColor()} text-white text-sm rounded-full font-medium border border-black`}>
+                                        <div className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r ${getSubscriptionColor()} text-black text-sm rounded-full font-medium border border-black`}>
                                             <Crown size={14} />
                                             {getSubscriptionLabel()}
                                         </div>
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm rounded-full font-medium border border-black">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-black text-sm rounded-full font-medium border border-black">
                                             <Award size={14} />
                                             {userInfo?.user?.level}
                                         </div>
@@ -275,7 +272,7 @@ const Perfil = () => {
                                 {getSubscriptionStatus() === 'free' && (
                                     <button
                                         onClick={() => setShowUpgrade(true)}
-                                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-xl hover:scale-105 transition-transform flex items-center gap-2 font-medium"
+                                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-black px-6 py-2 rounded-xl hover:scale-105 transition-transform flex items-center gap-2 font-medium"
                                     >
                                         <Sparkles size={18} />
                                         Upgrade
@@ -324,8 +321,8 @@ const Perfil = () => {
                         <div key={index} className="glass-card rounded-2xl p-6 hover:scale-105 transition-all duration-300 relative overflow-hidden group">
                             <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
                             <div className="relative z-10">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                                <div className="flex items-center justify-between mb-4 text-black">
+                                    <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center text-black shadow-lg`}>
                                         <stat.icon size={24} />
                                     </div>
                                     <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
@@ -333,7 +330,7 @@ const Perfil = () => {
                                         {stat.growth}
                                     </div>
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                <h3 className="text-2xl font-bold text-gray-800 dark:text-black">
                                     {stat.value.toLocaleString()}
                                 </h3>
                                 <p className="text-gray-600 dark:text-gray-400 capitalize">
@@ -349,7 +346,7 @@ const Perfil = () => {
                     <div className="lg:col-span-2 glass-card rounded-2xl p-6">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-1">
+                                <h2 className="text-xl font-bold text-gray-800 dark:text-black mb-1">
                                     Humor dos Últimos 30 Dias
                                 </h2>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -391,7 +388,7 @@ const Perfil = () => {
                                             style={{ color: day.color }}
                                             className="opacity-70 group-hover:opacity-100"
                                         />
-                                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
                                             Dia {day.date}: {day.sessions} sessões
                                         </div>
                                     </div>
@@ -420,14 +417,14 @@ const Perfil = () => {
                     <div className="space-y-6">
                         {getSubscriptionStatus() === 'free' && (
                             <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10"></div>
+                                <div className="absolute inset-0 bg-white"></div>
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white">
+                                        <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-black">
                                             <Crown size={24} />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-gray-800 dark:text-white">
+                                            <h3 className="font-bold text-gray-800 dark:text-black">
                                                 Desbloqueie o Potencial
                                             </h3>
                                             <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -452,7 +449,7 @@ const Perfil = () => {
 
                                     <button
                                         onClick={() => setShowUpgrade(true)}
-                                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium hover:scale-105 transition-transform flex items-center justify-center gap-2"
+                                        className="w-fit px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-black text-lg rounded-xl font-medium hover:scale-105 transition-transform flex items-center justify-center gap-2"
                                     >
                                         <Sparkles size={18} />
                                         Fazer Upgrade
@@ -463,13 +460,13 @@ const Perfil = () => {
 
                         {/* Informações Adicionais */}
                         <div className="glass-card rounded-2xl p-6">
-                            <h3 className="font-bold text-gray-800 dark:text-white mb-4">
+                            <h3 className="font-bold text-gray-800 dark:text-black mb-4">
                                 Informações da Conta
                             </h3>
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-600 dark:text-gray-400 text-sm">Membro desde</span>
-                                    <span className="font-medium text-gray-800 dark:text-white text-sm">
+                                    <span className="font-medium text-gray-800 dark:text-black text-sm">
                                         {formatDate(userInfo?.user?.joinDate)}
                                     </span>
                                 </div>
@@ -538,7 +535,7 @@ const Perfil = () => {
                     <div className="glass-card rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="p-6 sm:p-8">
                             <div className="text-center mb-8">
-                                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-4">
+                                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-black mx-auto mb-4">
                                     <Crown size={32} />
                                 </div>
                                 <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">

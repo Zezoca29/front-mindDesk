@@ -16,6 +16,7 @@ import {
   Share2,
   Eye,
   ChevronRight,
+  ChevronLeft,
   Sparkles,
   Target,
   Zap
@@ -28,6 +29,11 @@ const Recommendations = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [favorites, setFavorites] = useState(new Set());
   const [viewMode, setViewMode] = useState('grid');
+
+  // Função para voltar à página anterior
+  const handleGoBack = () => {
+    window.history.back();
+  };
 
   // Dados dos livros (você pode expandir isso)
   const books = [
@@ -167,6 +173,14 @@ const Recommendations = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800">
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Botão de voltar */}
+        <button
+          onClick={handleGoBack}
+          className="flex items-center gap-2 mb-6 px-4 py-2 bg-white dark:bg-slate-800 rounded-full shadow hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-700 dark:text-gray-200"
+        >
+          <ChevronLeft size={20} />
+          Voltar
+        </button>
         {/* Header da página */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-medium mb-4">

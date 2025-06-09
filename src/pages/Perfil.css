@@ -212,7 +212,6 @@
 /* ===== GLASS MORPHISM ENHANCED ===== */
 
 .glass-card {
-  background: var(--glass-bg);
   backdrop-filter: var(--blur-strength);
   -webkit-backdrop-filter: var(--blur-strength);
   border: 1px solid var(--glass-border);
@@ -220,6 +219,7 @@
   position: relative;
   overflow: hidden;
   transition: var(--transition-smooth);
+  margin: .5rem;
 }
 
 .glass-card::before {
