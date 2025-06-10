@@ -801,13 +801,6 @@ const MindfulnessHeader = () => {
                   subtitle: 'Suas informações',
                   color: 'gray',
                   href: '/perfil'
-                },
-                {
-                  icon: Settings,
-                  label: 'Configurações',
-                  subtitle: 'Personalizar app',
-                  color: 'purple',
-                  href: '/config'
                 }
               ].map((item, index) => (
                 <Link

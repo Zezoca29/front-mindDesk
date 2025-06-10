@@ -28,32 +28,24 @@ import {
 } from 'lucide-react';
 
 import './Perfil.css'
-
-// Simulando dados do contexto de autenticação
-const mockUserData = {
-    success: true,
-    user: {
-        nome: 'Kaique Zêza',
-        email: 'kaiquezeza@email.com',
-        cargo: 'Engenheiro de Software',
-        telefone: '(11) 93221-4535',
-        empresa: 'Zez Technology',
-        subscriptionStatus: 'free',
-        points: 1247,
-        joinDate: '2024-01-15',
-        streak: 12,
-        totalSessions: 89,
-        totalMinutes: 1420,
-        level: 'Iniciante Avançado',
-        avatar: null
-    }
-};
+import { useAuth } from './contexts/AuthContext';
 
 const Perfil = () => {
-    const [userInfo] = useState(mockUserData);
     const [moodData, setMoodData] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState('premium');
     const [showUpgrade, setShowUpgrade] = useState(false);
+    const { user: userInfo, isAuthenticated, logout } = useAuth();
+    // Crie uma constante para facilitar o acesso aos dados do usuário
+    const user = userInfo?.user || userInfo || {};
+    const nome = user.nome || 'Usuário';
+    const email = user.email || '';
+    const subscriptionStatus = user.subscriptionStatus || 'free';
+    const points = user.points || 0;
+    const streakCount = user.streakCount || 0;
+    const longestStreak = user.longestStreak || 0;
+    const lastActivityDate = user.lastActivityDate;
+    const moodStats = user.moodStats || {};
+    const activityStats = user.activityStats || {};
 
     // Gerar dados de humor dos últimos 30 dias
     useEffect(() => {
@@ -161,19 +153,6 @@ const Perfil = () => {
             ],
             popular: true,
             gradient: 'from-purple-500 to-blue-500'
-        },
-        {
-            name: 'Premium Plus',
-            price: 'R$ 29,90',
-            period: '/mês',
-            features: [
-                'Tudo do Premium',
-                'Coach pessoal IA',
-                'Sessões personalizadas',
-                'Acesso antecipado'
-            ],
-            popular: false,
-            gradient: 'from-purple-500 to-pink-500'
         }
     ];
 
@@ -239,26 +218,22 @@ const Perfil = () => {
                         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                             <div className="flex items-center gap-6 text-black">
                                 <div className="relative">
-                                    <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-black font-bold text-2xl shadow-xl">
+                                    <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-xl">
                                         {getUserInitials()}
                                     </div>
                                 </div>
 
                                 <div className="space-y-1 ml-2">
                                     <h1 className="text-3xl font-bold text-gray-800 dark:text-black">
-                                        {getUserDisplayName()}
+                                        {nome}
                                     </h1>
                                     <p className="text-gray-600 dark:text-gray-300">
-                                        {userInfo?.user?.email}
+                                        {email}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-3 mt-2">
                                         <div className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r ${getSubscriptionColor()} text-black text-sm rounded-full font-medium border border-black`}>
                                             <Crown size={14} />
-                                            {getSubscriptionLabel()}
-                                        </div>
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-black text-sm rounded-full font-medium border border-black">
-                                            <Award size={14} />
-                                            {userInfo?.user?.level}
+                                            {subscriptionStatus}
                                         </div>
                                     </div>
                                 </div>
@@ -287,11 +262,11 @@ const Perfil = () => {
                     {[
                         {
                             title: 'Sequência',
-                            value: userInfo?.user?.streak || 0,
+                            value: streakCount || 0,
                             unit: 'dias',
                             icon: Target,
                             color: 'from-orange-500 to-red-500',
-                            growth: '+2 hoje'
+                            growth: `+${streakCount} hoje`
                         },
                         {
                             title: 'Sessões',
@@ -415,82 +390,6 @@ const Perfil = () => {
 
                     {/* Painel de Upgrade */}
                     <div className="space-y-6">
-                        {getSubscriptionStatus() === 'free' && (
-                            <div className="glass-card rounded-2xl p-6 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-white"></div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-black">
-                                            <Crown size={24} />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-800 dark:text-black">
-                                                Desbloqueie o Potencial
-                                            </h3>
-                                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                                                Acesso completo ao Mind Desk
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3 mb-6">
-                                        {[
-                                            'Meditações ilimitadas',
-                                            'Relatórios detalhados',
-                                            'Coach pessoal IA',
-                                            'Conteúdo exclusivo'
-                                        ].map((feature, index) => (
-                                            <div key={index} className="flex items-center gap-2 text-sm">
-                                                <CheckCircle size={16} className="text-green-500" />
-                                                <span className="text-gray-700 dark:text-gray-300">{feature}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <button
-                                        onClick={() => setShowUpgrade(true)}
-                                        className="w-fit px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-black text-lg rounded-xl font-medium hover:scale-105 transition-transform flex items-center justify-center gap-2"
-                                    >
-                                        <Sparkles size={18} />
-                                        Fazer Upgrade
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Informações Adicionais */}
-                        <div className="glass-card rounded-2xl p-6">
-                            <h3 className="font-bold text-gray-800 dark:text-black mb-4">
-                                Informações da Conta
-                            </h3>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 dark:text-gray-400 text-sm">Membro desde</span>
-                                    <span className="font-medium text-gray-800 dark:text-black text-sm">
-                                        {formatDate(userInfo?.user?.joinDate)}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 dark:text-gray-400 text-sm">Empresa</span>
-                                    <span className="font-medium text-gray-800 dark:text-white text-sm">
-                                        {userInfo?.user?.empresa}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 dark:text-gray-400 text-sm">Cargo</span>
-                                    <span className="font-medium text-gray-800 dark:text-white text-sm">
-                                        {userInfo?.user?.cargo}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 dark:text-gray-400 text-sm">Telefone</span>
-                                    <span className="font-medium text-gray-800 dark:text-white text-sm">
-                                        {userInfo?.user?.telefone}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
                         {/* Próximas Metas */}
                         <div className="glass-card rounded-2xl p-6">
                             <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
