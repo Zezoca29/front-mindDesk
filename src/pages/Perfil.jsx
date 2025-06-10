@@ -35,7 +35,8 @@ const Perfil = () => {
     const [selectedPlan, setSelectedPlan] = useState('premium');
     const [showUpgrade, setShowUpgrade] = useState(false);
     const { user: userInfo, isAuthenticated, logout } = useAuth();
-    // Crie uma constante para facilitar o acesso aos dados do usuário
+    
+    // Configuração correta dos dados do usuário baseada na resposta da API
     const user = userInfo?.user || userInfo || {};
     const nome = user.nome || 'Usuário';
     const email = user.email || '';
@@ -47,7 +48,25 @@ const Perfil = () => {
     const moodStats = user.moodStats || {};
     const activityStats = user.activityStats || {};
 
-    // Gerar dados de humor dos últimos 30 dias
+    // Extraindo dados específicos das estatísticas
+    const totalMeditations = activityStats.totalMeditations || 0;
+    const totalDiaryEntries = activityStats.totalDiaryEntries || 0;
+    const totalStressEvents = activityStats.totalStressEvents || 0;
+    const savedQuotes = activityStats.savedQuotes || 0;
+    const lastLoginDate = activityStats.lastLoginDate;
+
+    // Dados de humor
+    const moodDistribution = moodStats.moodDistribution || {};
+    const totalMoodEntries = moodStats.totalEntries || 0;
+    const averageMood = moodStats.averageMood || 0;
+    const lastMoodEntry = moodStats.lastMoodEntry;
+
+    // Calculando estatísticas derivadas
+    const totalSessions = totalMeditations + totalDiaryEntries;
+    const totalMinutes = totalMeditations * 10; // Assumindo 10 min por meditação
+    const totalActivities = totalMeditations + totalDiaryEntries + totalStressEvents;
+
+    // Gerar dados de humor dos últimos 30 dias baseado nos dados reais
     useEffect(() => {
         const generateMoodData = () => {
             const data = [];
@@ -61,32 +80,70 @@ const Perfil = () => {
                 sad: '#ef4444'
             };
 
+            // Se temos dados reais de humor, usar alguns deles
+            const realMoodCount = totalMoodEntries;
+            
             for (let i = 29; i >= 0; i--) {
                 const date = new Date(today);
                 date.setDate(date.getDate() - i);
-                const mood = moods[Math.floor(Math.random() * moods.length)];
+                
+                // Se temos dados reais, usar uma probabilidade baseada neles
+                let mood;
+                if (realMoodCount > 0 && Math.random() < 0.3) {
+                    // Usar distribuição real de humor
+                    const moodTypes = Object.keys(moodDistribution);
+                    const totalReal = Object.values(moodDistribution).reduce((a, b) => a + b, 0);
+                    if (totalReal > 0) {
+                        const rand = Math.random();
+                        let cumulative = 0;
+                        for (const [moodType, count] of Object.entries(moodDistribution)) {
+                            cumulative += count / totalReal;
+                            if (rand <= cumulative) {
+                                // Mapear os tipos de humor da API para os do componente
+                                const moodMapping = {
+                                    'great': 'excited',
+                                    'good': 'happy',
+                                    'neutral': 'neutral',
+                                    'stressed': 'sad',
+                                    'bad': 'sad'
+                                };
+                                mood = moodMapping[moodType] || 'neutral';
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (!mood) {
+                    mood = moods[Math.floor(Math.random() * moods.length)];
+                }
+                
                 const intensity = Math.floor(Math.random() * 5) + 1;
+                const sessions = Math.floor(Math.random() * 3) + 1;
 
                 data.push({
                     date: date.getDate(),
                     mood,
                     intensity,
                     color: moodColors[mood],
-                    sessions: Math.floor(Math.random() * 3) + 1
+                    sessions
                 });
             }
             return data;
         };
 
         setMoodData(generateMoodData());
-    }, []);
+    }, [moodDistribution, totalMoodEntries]);
 
     // Funções de utilidade baseadas no Header
     const getUserDisplayName = () => {
         if (userInfo?.success && userInfo?.user) {
             return userInfo.user.nome || userInfo.user.email?.split('@')[0] || 'Usuário';
         }
-        return 'Usuário';
+        if (userInfo?.nome) {
+            return userInfo.nome;
+        }
+        return nome || 'Usuário';
     };
 
     const getUserInitials = () => {
@@ -97,7 +154,7 @@ const Perfil = () => {
     };
 
     const getSubscriptionStatus = () => {
-        return userInfo?.user?.subscriptionStatus || 'free';
+        return subscriptionStatus;
     };
 
     const getSubscriptionLabel = () => {
@@ -123,6 +180,7 @@ const Perfil = () => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return 'Nunca';
         return new Date(dateString).toLocaleDateString('pt-BR', {
             year: 'numeric',
             month: 'long'
@@ -155,6 +213,26 @@ const Perfil = () => {
             gradient: 'from-purple-500 to-blue-500'
         }
     ];
+
+    // Calculando estatísticas de humor para exibição
+    const calculateMoodStats = () => {
+        const moodCounts = moodData.reduce((acc, day) => {
+            acc[day.mood] = (acc[day.mood] || 0) + 1;
+            return acc;
+        }, {});
+
+        const positiveCount = (moodCounts.happy || 0) + (moodCounts.excited || 0) + (moodCounts.calm || 0);
+        const neutralCount = moodCounts.neutral || 0;
+        const challengingCount = moodCounts.sad || 0;
+
+        return {
+            positive: positiveCount,
+            neutral: neutralCount,
+            challenging: challengingCount
+        };
+    };
+
+    const moodDisplayStats = calculateMoodStats();
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -233,8 +311,13 @@ const Perfil = () => {
                                     <div className="flex flex-wrap items-center gap-3 mt-2">
                                         <div className={`inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r ${getSubscriptionColor()} text-black text-sm rounded-full font-medium border border-black`}>
                                             <Crown size={14} />
-                                            {subscriptionStatus}
+                                            {getSubscriptionLabel()}
                                         </div>
+                                        {lastLoginDate && (
+                                            <div className="text-xs text-gray-500">
+                                                Último acesso: {formatDate(lastLoginDate)}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -257,40 +340,41 @@ const Perfil = () => {
                         </div>
                     </div>
                 </div>
-                {/* Grid de Estatísticas */}
+                
+                {/* Grid de Estatísticas - Agora usando dados reais da API */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {[
                         {
                             title: 'Sequência',
-                            value: streakCount || 0,
+                            value: streakCount,
                             unit: 'dias',
                             icon: Target,
                             color: 'from-orange-500 to-red-500',
-                            growth: `+${streakCount} hoje`
+                            growth: `Melhor: ${longestStreak} dias`
                         },
                         {
-                            title: 'Sessões',
-                            value: userInfo?.user?.totalSessions || 0,
-                            unit: 'total',
+                            title: 'Meditações',
+                            value: totalMeditations,
+                            unit: 'sessões',
                             icon: Activity,
                             color: 'from-blue-500 to-cyan-500',
-                            growth: '+5 esta semana'
+                            growth: `+${totalSessions} total`
                         },
                         {
                             title: 'Minutos',
-                            value: userInfo?.user?.totalMinutes || 0,
+                            value: totalMinutes,
                             unit: 'totais',
                             icon: Clock,
                             color: 'from-green-500 to-emerald-500',
-                            growth: '+45 hoje'
+                            growth: `${Math.round(totalMinutes / 60)}h ${totalMinutes % 60}m`
                         },
                         {
                             title: 'Pontos',
-                            value: userInfo?.user?.points || 0,
+                            value: points,
                             unit: 'XP',
                             icon: Star,
                             color: 'from-purple-500 to-pink-500',
-                            growth: '+120 hoje'
+                            growth: `${savedQuotes} citações salvas`
                         }
                     ].map((stat, index) => (
                         <div key={index} className="glass-card rounded-2xl p-6 hover:scale-105 transition-all duration-300 relative overflow-hidden group">
@@ -300,7 +384,7 @@ const Perfil = () => {
                                     <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center text-black shadow-lg`}>
                                         <stat.icon size={24} />
                                     </div>
-                                    <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                                    <div className="text-xs text-blue-600 dark:text-blue-400 font-medium flex items-center gap-1">
                                         <ArrowUp size={12} />
                                         {stat.growth}
                                     </div>
@@ -325,7 +409,7 @@ const Perfil = () => {
                                     Humor dos Últimos 30 Dias
                                 </h2>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                    Acompanhe sua jornada emocional
+                                    Acompanhe sua jornada emocional • {totalMoodEntries} registros reais
                                 </p>
                             </div>
                             <div className="flex gap-2">
@@ -363,7 +447,7 @@ const Perfil = () => {
                                             style={{ color: day.color }}
                                             className="opacity-70 group-hover:opacity-100"
                                         />
-                                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-black text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
                                             Dia {day.date}: {day.sessions} sessões
                                         </div>
                                     </div>
@@ -374,22 +458,48 @@ const Perfil = () => {
                         {/* Estatísticas do Humor */}
                         <div className="grid grid-cols-3 gap-4 mt-6">
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-green-500 mb-1">18</div>
+                                <div className="text-2xl font-bold text-green-500 mb-1">{moodDisplayStats.positive}</div>
                                 <div className="text-xs text-gray-600 dark:text-gray-400">Dias positivos</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-blue-500 mb-1">8</div>
+                                <div className="text-2xl font-bold text-blue-500 mb-1">{moodDisplayStats.neutral}</div>
                                 <div className="text-xs text-gray-600 dark:text-gray-400">Dias neutros</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-orange-500 mb-1">4</div>
+                                <div className="text-2xl font-bold text-orange-500 mb-1">{moodDisplayStats.challenging}</div>
                                 <div className="text-xs text-gray-600 dark:text-gray-400">Dias desafiadores</div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Painel de Upgrade */}
+                    {/* Painel de Atividades e Metas */}
                     <div className="space-y-6">
+                        {/* Estatísticas de Atividade */}
+                        <div className="glass-card rounded-2xl p-6">
+                            <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                                <BarChart3 size={20} />
+                                Atividades
+                            </h3>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Meditações</span>
+                                    <span className="font-bold text-gray-800 dark:text-white">{totalMeditations}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Diário</span>
+                                    <span className="font-bold text-gray-800 dark:text-white">{totalDiaryEntries}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Eventos de Stress</span>
+                                    <span className="font-bold text-gray-800 dark:text-white">{totalStressEvents}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Citações Salvas</span>
+                                    <span className="font-bold text-gray-800 dark:text-white">{savedQuotes}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Próximas Metas */}
                         <div className="glass-card rounded-2xl p-6">
                             <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
@@ -398,9 +508,27 @@ const Perfil = () => {
                             </h3>
                             <div className="space-y-4">
                                 {[
-                                    { goal: 'Sequência de 15 dias', progress: 80, reward: '50 XP' },
-                                    { goal: '100 sessões totais', progress: 89, reward: 'Badge Dedicado' },
-                                    { goal: '2000 minutos', progress: 71, reward: 'Unlock Premium Trial' }
+                                    { 
+                                        goal: 'Sequência de 7 dias', 
+                                        progress: Math.min((streakCount / 7) * 100, 100), 
+                                        reward: '50 XP',
+                                        current: streakCount,
+                                        target: 7
+                                    },
+                                    { 
+                                        goal: '10 meditações', 
+                                        progress: Math.min((totalMeditations / 10) * 100, 100), 
+                                        reward: 'Badge Iniciante',
+                                        current: totalMeditations,
+                                        target: 10
+                                    },
+                                    { 
+                                        goal: '100 minutos', 
+                                        progress: Math.min((totalMinutes / 100) * 100, 100), 
+                                        reward: 'Unlock Premium Trial',
+                                        current: totalMinutes,
+                                        target: 100
+                                    }
                                 ].map((item, index) => (
                                     <div key={index} className="space-y-2">
                                         <div className="flex justify-between items-center">
@@ -414,11 +542,11 @@ const Perfil = () => {
                                         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                             <div
                                                 className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
-                                                style={{ width: `${item.progress}%` }}
+                                                style={{ width: `${Math.min(item.progress, 100)}%` }}
                                             ></div>
                                         </div>
                                         <div className="text-xs text-gray-600 dark:text-gray-400">
-                                            {item.progress}% completo
+                                            {item.current}/{item.target} • {Math.round(item.progress)}% completo
                                         </div>
                                     </div>
                                 ))}
