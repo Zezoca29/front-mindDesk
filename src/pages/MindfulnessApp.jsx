@@ -424,15 +424,6 @@ export default function MindfulnessApp() {
                     Encerrar Meditação
                   </button>
                 </div>
-
-                <div className="meditation-ambient-display">
-                  <p>Som ambiente:
-                    {backgroundSound === 'nature' && ' Natureza'}
-                    {backgroundSound === 'rain' && ' Chuva'}
-                    {backgroundSound === 'ocean' && ' Oceano'}
-                    {backgroundSound === 'silence' && ' Silêncio'}
-                  </p>
-                </div>
               </div>
             )}
           </div>

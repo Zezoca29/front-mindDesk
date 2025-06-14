@@ -89,7 +89,8 @@ function CadastroPremium() {
   // Função para verificar status do pagamento no backend
   const checkPaymentStatus = async (paymentId) => {
     try {
-      const response = await fetch(`https://65dc-2804-7f0-7d80-293a-59b7-a4a8-d7f6-8e11.ngrok-free.app/api/payments/check/${paymentId}`, {
+      const apiUrl = import.meta.env.VITE_API_PAYMENTS_CHECK;
+      const response = await fetch(`${apiUrl}/${paymentId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -256,7 +257,8 @@ function CadastroPremium() {
           };
 
           // Enviando os dados para a API
-          fetch('https://65dc-2804-7f0-7d80-293a-59b7-a4a8-d7f6-8e11.ngrok-free.app/api/payments/create-with-signup', {
+          const apiUrl = import.meta.env.VITE_API_PAYMENTS_CREATE_WITH_SIGNUP;
+          fetch(apiUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

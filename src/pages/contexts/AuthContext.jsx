@@ -50,8 +50,13 @@ export const AuthProvider = ({ children }) => {
   const fetchUserData = async (authToken) => {
     try {
       console.log('Fazendo requisição para /api/user/me com token:', authToken?.substring(0, 20) + '...');
-      
-      const response = await fetch('https://5309-2804-7f0-7d80-b2b-e8d1-857e-64e8-784e.ngrok-free.app/api/user/me', {
+
+
+      const apiUrl = import.meta.env.VITE_API_USER_ME;
+      if (!apiUrl) {
+        throw new Error('A variável de ambiente VITE_API_USER_ME não está definida.');
+      }
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authToken}`,
@@ -98,7 +103,11 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Iniciando processo de login...');
       
-      const loginResponse = await fetch('https://5309-2804-7f0-7d80-b2b-e8d1-857e-64e8-784e.ngrok-free.app/api/auth/login', {
+      const apiUrl = import.meta.env.VITE_API_AUTH_LOGIN;
+      if (!apiUrl) {
+        throw new Error('A variável de ambiente REACT_APP_API_AUTH_LOGIN não está definida.');
+      }
+      const loginResponse = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
