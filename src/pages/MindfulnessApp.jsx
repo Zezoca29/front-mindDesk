@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Leaf, BookOpen, Heart, Wind, Activity, Menu, Clock, Moon, Sun, Cloud, VolumeX } from 'lucide-react';
 import './mindfulnessApp.css';
 import MindfulnessHeader from './MindfulnessAppHeader';
-import { LogOut, Settings, User, X, Bell, ChevronRight, BarChart3, Share2, Sparkles, Award} from 'lucide-react';
+import { LogOut, Settings, User, X, Bell, ChevronRight, BarChart3, Share2, Sparkles, Award } from 'lucide-react';
 
 export default function MindfulnessApp() {
   const [breathCount, setBreathCount] = useState(4);
@@ -17,6 +17,12 @@ export default function MindfulnessApp() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
+  const [showPremiumScreen, setShowPremiumScreen] = useState(false);
+
+  // Função para alternar a tela premium
+  const handleToggle = () => {
+    setShowPremiumScreen((prev) => !prev);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -32,9 +38,9 @@ export default function MindfulnessApp() {
   };
 
   const formatClockTime = (date) => {
-    return date.toLocaleTimeString('pt-BR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -661,57 +667,73 @@ export default function MindfulnessApp() {
     }
   };
 
-  return (
+  // Exemplo de tela premium
+  const PremiumScreen = () => (
+    <div className="premium-screen">
+      <h2>Bem-vindo ao Premium!</h2>
+      <p>Conteúdo exclusivo para assinantes.</p>
+      <button onClick={() => setShowPremiumScreen(false)}>Voltar</button>
+    </div>
+  );
+
+// ...existing code...
+return (
     <div className="app-container">
       {/* Cabeçalho do Aplicativo */}
-      <MindfulnessHeader />
+      <MindfulnessHeader onPremiumToggle={() => setShowPremiumScreen(true)} />
       {/* Conteúdo Principal */}
       <main className="main-content">
-        {renderContent()}
+        {showPremiumScreen ? (
+          <PremiumScreen />
+        ) : (
+          renderContent()
+        )}
       </main>
 
       {/* Grade de Recursos */}
-      <div className="feature-grid">
-        <div
-          className={`feature-grid-item ${activeTab === 'breathing' ? 'active' : ''}`}
-          onClick={() => setActiveTab('breathing')}
-        >
-          <div className="feature-grid-icon">
-            <Wind size={24} />
+      {!showPremiumScreen && (
+        <div className="feature-grid">
+          <div
+            className={`feature-grid-item ${activeTab === 'breathing' ? 'active' : ''}`}
+            onClick={() => setActiveTab('breathing')}
+          >
+            <div className="feature-grid-icon">
+              <Wind size={24} />
+            </div>
+            <span>Respiração</span>
           </div>
-          <span>Respiração</span>
-        </div>
 
-        <div
-          className={`feature-grid-item ${activeTab === 'meditation' ? 'active' : ''}`}
-          onClick={() => setActiveTab('meditation')}
-        >
-          <div className="feature-grid-icon">
-            <Activity size={24} />
+          <div
+            className={`feature-grid-item ${activeTab === 'meditation' ? 'active' : ''}`}
+            onClick={() => setActiveTab('meditation')}
+          >
+            <div className="feature-grid-icon">
+              <Activity size={24} />
+            </div>
+            <span>Meditação</span>
           </div>
-          <span>Meditação</span>
-        </div>
 
-        <div
-          className={`feature-grid-item ${activeTab === 'relaxation' ? 'active' : ''}`}
-          onClick={() => setActiveTab('relaxation')}
-        >
-          <div className="feature-grid-icon">
-            <Leaf size={24} />
+          <div
+            className={`feature-grid-item ${activeTab === 'relaxation' ? 'active' : ''}`}
+            onClick={() => setActiveTab('relaxation')}
+          >
+            <div className="feature-grid-icon">
+              <Leaf size={24} />
+            </div>
+            <span>Relaxamento</span>
           </div>
-          <span>Relaxamento</span>
-        </div>
 
-        <div
-          className={`feature-grid-item ${activeTab === 'journal' ? 'active' : ''}`}
-          onClick={() => setActiveTab('journal')}
-        >
-          <div className="feature-grid-icon">
-            <BookOpen size={24} />
+          <div
+            className={`feature-grid-item ${activeTab === 'journal' ? 'active' : ''}`}
+            onClick={() => setActiveTab('journal')}
+          >
+            <div className="feature-grid-icon">
+              <BookOpen size={24} />
+            </div>
+            <span>Diário</span>
           </div>
-          <span>Diário</span>
         </div>
-      </div>
+      )}
     </div>
   );
 }

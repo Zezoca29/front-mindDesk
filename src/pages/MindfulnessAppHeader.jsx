@@ -19,13 +19,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import './MindfulnessAppHeader.css'; // Importar o CSS para estilos adicionais
 
-
-const MindfulnessHeader = () => {
+const MindfulnessHeader = ({ onPremiumToggle }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
+  const [isPremium, setIsPremium] = useState(false);
   const { user: userInfo, isAuthenticated, logout } = useAuth();
 
   // dailyProgress pode estar em userInfo.user.dailyProgress ou userInfo.dailyProgress
@@ -199,10 +200,39 @@ const MindfulnessHeader = () => {
     }
   };
 
-  // Debug: mostrar dados atuais
-  console.log('Estado atual - userInfo:', userInfo);
-  console.log('Nome do usuário:', getUserDisplayName());
-  console.log('Status da assinatura:', getSubscriptionStatus());
+  const [toggleParticles, setToggleParticles] = useState([]);
+  const handleToggle = (e) => {
+    setIsPremium((prev) => !prev);
+
+    // Efeito partículas
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const newParticles = [];
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      const velocity = 50;
+      const vx = Math.cos(angle) * velocity;
+      const vy = Math.sin(angle) * velocity;
+      newParticles.push({
+        id: Math.random() + Date.now() + i,
+        x,
+        y,
+        vx,
+        vy,
+        color: !isPremium ? '#22d3ee' : '#a855f7'
+      });
+    }
+    setToggleParticles((prev) => [...prev, ...newParticles]);
+  };
+
+  useEffect(() => {
+    if (toggleParticles.length === 0) return;
+    const timeout = setTimeout(() => {
+      setToggleParticles([]);
+    }, 600);
+    return () => clearTimeout(timeout);
+  }, [toggleParticles]);
 
   return (
     <div className={`${isDarkMode ? 'dark' : ''}`}>
@@ -612,6 +642,16 @@ const MindfulnessHeader = () => {
             max-width: 30vw;
           }
         }
+          @keyframes explode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--vx), var(--vy)) scale(0);
+    opacity: 0;
+  }
+}
       `}</style>
 
       <header className="mindfulness-header relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 shadow-xl">
@@ -654,19 +694,67 @@ const MindfulnessHeader = () => {
 
             {/* Header actions */}
             <div className="flex items-center gap-2">
-              {/* Hora atual */}
               <div className="hidden sm:block text-white text-sm time-display glass-effect px-3 py-2 rounded-lg">
                 {formatTime(currentTime)}
               </div>
 
-              {/* Dark mode toggle */}
-              <button
-                onClick={toggleDarkMode}
-                className="interactive-button glass-effect p-2.5 rounded-xl text-white hover:scale-105 focus-ring"
-                aria-label="Alternar modo escuro"
-              >
-                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
+              {/* Toggle Glowing Premium Button */}
+              {getSubscriptionStatus() !== 'free' && (
+                <div className="flex items-center space-x-2">
+                  <div className="toggle-container relative">
+                    <span
+                      className={`toggle-label free${isPremium ? ' inactive' : ''}`}
+                      id="freeLabel"
+                    >
+                      Free
+                    </span>
+                    <button
+                      className={`toggle-button ${isPremium ? 'premium' : 'free'}`}
+                      aria-label={
+                        isPremium ? 'Alternar para Free' : 'Alternar para Premium'
+                      }
+                      type="button"
+                      onClick={(e) => {
+                        handleToggle(e);
+                        if (typeof onPremiumToggle === 'function') {
+                          onPremiumToggle();
+                        }
+                      }}
+                      style={{ position: 'relative', overflow: 'visible' }}
+                    >
+                      <div
+                        className={`toggle-slider ${isPremium ? 'premium' : 'free'}`}
+                        id="toggleSlider"
+                      ></div>
+                      {/* Partículas */}
+                      {toggleParticles.map((p) => (
+                        <div
+                          key={p.id}
+                          style={{
+                            position: 'absolute',
+                            left: p.x,
+                            top: p.y,
+                            width: 4,
+                            height: 4,
+                            background: p.color,
+                            borderRadius: '50%',
+                            pointerEvents: 'none',
+                            animation: 'explode 0.6s ease-out forwards',
+                            '--vx': `${p.vx}px`,
+                            '--vy': `${p.vy}px`
+                          }}
+                        />
+                      ))}
+                    </button>
+                    <span
+                      className={`toggle-label premium${!isPremium ? ' inactive' : ''}`}
+                      id="premiumLabel"
+                    >
+                      Premium
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Notificações */}
               <div className="relative">

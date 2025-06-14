@@ -1,0 +1,343 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(ellipse at center, #0f172a 0%, #020617 100%);
+        }
+
+        /* Fundo animado com partículas */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(59, 130, 246, 0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(168, 85, 247, 0.2), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(34, 211, 238, 0.4), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(236, 72, 153, 0.3), transparent);
+            background-repeat: repeat;
+            background-size: 150px 100px;
+            animation: sparkle 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        .container {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(59, 130, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Toggle Container */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            margin-right: 1rem;
+            margin-top: 1rem
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .toggle-label.free {
+            color: #22d3ee;
+        }
+
+        .toggle-label.free.inactive {
+            color: #64748b;
+            text-shadow: none;
+        }
+
+        .toggle-label.premium {
+            color: #a855f7;
+        }
+
+        .toggle-label.premium.inactive {
+            color: #64748b;
+            text-shadow: none;
+        }
+
+        /* Toggle Button */
+        .toggle-button {
+            position: relative;
+            width: 80px;
+            height: 32px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .toggle-button:focus {
+            outline: none;
+        }
+
+        /* Estados do botão */
+        .toggle-button.free {
+            background: linear-gradient(135deg, #3b82f6 0%, #22d3ee 50%, #3b82f6 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease-in-out infinite;
+            box-shadow: 
+                0 0 30px rgba(34, 211, 238, 0.6),
+                0 0 60px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-button.premium {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #a855f7 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease-in-out infinite;
+            box-shadow: 
+                0 0 30px rgba(168, 85, 247, 0.6),
+                0 0 60px rgba(236, 72, 153, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+        }
+
+        .toggle-button:hover {
+            transform: scale(1.05) rotateY(5deg);
+        }
+
+        .toggle-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Efeito de brilho interno */
+        .toggle-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        /* Círculo deslizante */
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            width: 28px;
+            height: 28px;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #f1f5f9);
+            border-radius: 50%;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+        }
+
+        .toggle-slider.free {
+            left: 2px;
+            box-shadow: 
+                0 0 25px rgba(34, 211, 238, 0.8),
+                0 0 50px rgba(59, 130, 246, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        }
+
+        .toggle-slider.premium {
+            left: 50px;
+            box-shadow: 
+                0 0 25px rgba(168, 85, 247, 0.8),
+                0 0 50px rgba(236, 72, 153, 0.4),
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        }
+
+        .toggle-button:hover .toggle-slider {
+            transform: scale(1.1);
+        }
+
+        /* Brilho interno do slider */
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+
+        /* Partículas do slider */
+        .toggle-slider::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, currentColor, transparent);
+            animation: rotate 2s linear infinite;
+            opacity: 0.3;
+        }
+
+        .toggle-slider.free::after {
+            color: #22d3ee;
+        }
+
+        .toggle-slider.premium::after {
+            color: #a855f7;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Ondas de ativação */
+        .toggle-button::after {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 50px;
+            background: inherit;
+            opacity: 0;
+            animation: ripple 2s ease-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            0% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5);
+            }
+        }
+
+        /* Status text */
+        .status-text {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .status-text.free {
+            background: linear-gradient(45deg, #22d3ee, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-text.premium {
+            background: linear-gradient(45deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 5px currentColor);
+            }
+            to {
+                filter: drop-shadow(0 0 15px currentColor);
+            }
+        }
+
+        /* Efeitos de hover para o container */
+        .container:hover {
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                0 0 150px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px;
+                margin: 20px;
+            }
+            
+            .toggle-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .toggle-button {
+                width: 70px;
+                height: 28px;
+            }
+            
+            .toggle-slider {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .toggle-slider.premium {
+                left: 44px;
+            }
+        }
+
+        /* Animação de entrada */
+        .container {
+            animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
