@@ -22,7 +22,13 @@ import {
   Zap
 } from 'lucide-react';
 
-import './Recommendation.css'; // Importando o CSS para estilos adicionais
+import './Recommendation.css';
+import ansiedadeImg from '../assets/Ansiedade o mal do seculo.jpg';
+import habitosImg from '../assets/habitos.jpg';
+import atencaoImg from '../assets/atencao.jpg';
+import poderImg from '../assets/poder.jpg';
+import arteImg from '../assets/arte.jpg';
+import ikigaiImg from '../assets/ikigai.jpg';
 
 const Recommendations = () => {
   const [selectedCategory, setSelectedCategory] = useState('todos');
@@ -46,12 +52,12 @@ const Recommendations = () => {
       price: "R$ 29,90",
       originalPrice: "R$ 39,90",
       discount: 25,
-      image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&h=400&fit=crop",
+      image: atencaoImg,
       description: "Um guia prático para incorporar mindfulness no dia a dia e encontrar paz interior.",
       bestseller: true,
       readTime: "6h",
       pages: 280,
-      affiliateLink: "#",
+      affiliateLink: "https://amzn.to/4l5SEId",
       tags: ["meditação", "bem-estar", "autoajuda"]
     },
     {
@@ -63,12 +69,12 @@ const Recommendations = () => {
       price: "R$ 34,90",
       originalPrice: "R$ 44,90",
       discount: 22,
-      image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop",
+      image: poderImg,
       description: "Uma jornada em direção à iluminação espiritual através da consciência do momento presente.",
       trending: true,
       readTime: "8h",
       pages: 336,
-      affiliateLink: "#",
+      affiliateLink: "https://amzn.to/44cmncL",
       tags: ["presente", "consciência", "transformação"]
     },
     {
@@ -80,12 +86,12 @@ const Recommendations = () => {
       price: "R$ 42,90",
       originalPrice: "R$ 54,90",
       discount: 22,
-      image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop",
+      image: habitosImg,
       description: "Como pequenas mudanças geram grandes resultados através do poder dos hábitos.",
       bestseller: true,
       readTime: "7h",
       pages: 320,
-      affiliateLink: "#",
+      affiliateLink: "https://amzn.to/4jFwT0F",
       tags: ["hábitos", "mudança", "crescimento"]
     },
     {
@@ -97,11 +103,11 @@ const Recommendations = () => {
       price: "R$ 36,90",
       originalPrice: "R$ 49,90",
       discount: 26,
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop",
+      image: arteImg,
       description: "Aprenda as técnicas fundamentais da meditação com um dos maiores mestres do mundo.",
       readTime: "5h",
       pages: 240,
-      affiliateLink: "#",
+      affiliateLink: "https://amzn.to/4jNduLy",
       tags: ["meditação", "técnicas", "prática"]
     },
     {
@@ -113,12 +119,12 @@ const Recommendations = () => {
       price: "R$ 31,90",
       originalPrice: "R$ 39,90",
       discount: 20,
-      image: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=300&h=400&fit=crop",
+      image: ikigaiImg,
       description: "Descubra seu propósito de vida através da filosofia japonesa do ikigai.",
       trending: true,
       readTime: "4h",
       pages: 208,
-      affiliateLink: "#",
+      affiliateLink: "https://amzn.to/4mYpkVH",
       tags: ["propósito", "filosofia", "vida"]
     },
     {
@@ -130,11 +136,11 @@ const Recommendations = () => {
       price: "R$ 28,90",
       originalPrice: "R$ 36,90",
       discount: 22,
-      image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=400&fit=crop",
+      image: ansiedadeImg,
       description: "Estratégias práticas para superar a ansiedade e viver com mais tranquilidade.",
       readTime: "6h",
       pages: 256,
-      affiliateLink: "#",
+      affiliateLink: "https://amzn.to/4kGdfDg",
       tags: ["ansiedade", "saúde mental", "técnicas"]
     }
   ];
@@ -151,8 +157,8 @@ const Recommendations = () => {
   const filteredBooks = books.filter(book => {
     const matchesCategory = selectedCategory === 'todos' || book.category === selectedCategory;
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         book.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+      book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      book.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
@@ -192,7 +198,7 @@ const Recommendations = () => {
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"> Livros Favoritos</span>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Curadoria especial de livros sobre mindfulness, desenvolvimento pessoal e bem-estar. 
+            Curadoria especial de livros sobre mindfulness, desenvolvimento pessoal e bem-estar.
             Encontre sua próxima leitura transformadora.
           </p>
         </div>
@@ -225,11 +231,10 @@ const Recommendations = () => {
               <div
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`category-card p-4 rounded-xl text-center cursor-pointer ${
-                  selectedCategory === category.id
+                className={`category-card p-4 rounded-xl text-center cursor-pointer ${selectedCategory === category.id
                     ? 'active text-white'
                     : 'bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700'
-                }`}
+                  }`}
               >
                 <category.icon size={24} className="mx-auto mb-2" />
                 <div className="font-medium text-sm">{category.name}</div>
@@ -241,31 +246,7 @@ const Recommendations = () => {
 
         {/* Seção de Destaques */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Bestsellers */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Award className="text-yellow-500" size={24} />
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white">Bestsellers</h3>
-            </div>
-            <div className="space-y-3">
-              {bestsellers.slice(0, 3).map((book) => (
-                <div key={book.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">
-                  <div className="flex-1">
-                    <div className="font-medium text-sm text-gray-800 dark:text-white">{book.title}</div>
-                    <div className="text-xs text-gray-500">{book.author}</div>
-                    <div className="flex items-center gap-1 mt-1">
-                      <Star className="text-yellow-400" size={12} fill="currentColor" />
-                      <span className="text-xs text-gray-600">{book.rating}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold text-green-600">{book.price}</div>
-                    <div className="text-xs text-gray-400 line-through">{book.originalPrice}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          
 
           {/* Em Alta */}
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
@@ -305,15 +286,21 @@ const Recommendations = () => {
             </div>
           </div>
 
-          <div className={`grid gap-6 ${
-            viewMode === 'grid' 
+          <div className={`grid gap-6 ${viewMode === 'grid'
               ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
               : 'grid-cols-1'
-          }`}>
+            }`}>
             {filteredBooks.map((book) => (
               <div key={book.id} className="book-card bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden">
                 <div className="relative">
-                  
+                  {/* Imagem do livro */}
+                  <img
+                    src={book.image}
+                    alt={book.title}
+                    className="w-full h-25 object-cover"
+                    loading="lazy"
+                  />
+
                   {/* Badges */}
                   <div className="absolute top-3 left-3 flex flex-col gap-2">
                     {book.discount && (
@@ -403,8 +390,8 @@ const Recommendations = () => {
                     <div className="text-right">
                       <div className="text-sm text-gray-500">Economia de</div>
                       <div className="text-lg font-bold text-orange-500">
-                        R$ {(parseFloat(book.originalPrice.replace('R$ ', '').replace(',', '.')) - 
-                             parseFloat(book.price.replace('R$ ', '').replace(',', '.'))).toFixed(2).replace('.', ',')}
+                        R$ {(parseFloat(book.originalPrice.replace('R$ ', '').replace(',', '.')) -
+                          parseFloat(book.price.replace('R$ ', '').replace(',', '.'))).toFixed(2).replace('.', ',')}
                       </div>
                     </div>
                   </div>
@@ -439,23 +426,9 @@ const Recommendations = () => {
           <div className="max-w-3xl mx-auto">
             <h3 className="text-2xl font-bold mb-4">💡 Programa de Afiliados</h3>
             <p className="text-indigo-100 mb-4">
-              Todos os links para compra são links de afiliado. Ao comprar através deles, você nos ajuda a manter 
+              Todos os links para compra são links de afiliado. Ao comprar através deles, você nos ajuda a manter
               este serviço gratuito e de qualidade, sem nenhum custo adicional para você!
             </p>
-            <div className="flex items-center justify-center gap-8 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span>Preços sempre atualizados</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                <span>Links verificados</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                <span>Melhor custo-benefício</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

@@ -957,3 +957,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+
+img.w-full.h-25.object-cover {
+    height: 44rem;
+}

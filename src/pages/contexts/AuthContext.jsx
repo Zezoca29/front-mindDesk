@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Fazendo requisição para /api/user/me com token:', authToken?.substring(0, 20) + '...');
       
-      const response = await fetch('https://f977-2804-7f0-7d80-c-4098-fb5f-1b41-6e7e.ngrok-free.app/api/user/me', {
+      const response = await fetch('https://5309-2804-7f0-7d80-b2b-e8d1-857e-64e8-784e.ngrok-free.app/api/user/me', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authToken}`,
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Iniciando processo de login...');
       
-      const loginResponse = await fetch('https://f977-2804-7f0-7d80-c-4098-fb5f-1b41-6e7e.ngrok-free.app/api/auth/login', {
+      const loginResponse = await fetch('https://5309-2804-7f0-7d80-b2b-e8d1-857e-64e8-784e.ngrok-free.app/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

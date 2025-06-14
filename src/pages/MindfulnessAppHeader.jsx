@@ -26,8 +26,19 @@ const MindfulnessHeader = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
-
   const { user: userInfo, isAuthenticated, logout } = useAuth();
+
+  // dailyProgress pode estar em userInfo.user.dailyProgress ou userInfo.dailyProgress
+  const dailyProgress =
+    (userInfo && userInfo.user && userInfo.user.dailyProgress) ||
+    (userInfo && userInfo.dailyProgress) ||
+    {};
+
+  // totalMindfulnessMinutes pode estar em userInfo.user.totalMindfulnessMinutes ou userInfo.totalMindfulnessMinutes
+  const totalMindfulnessMinutes =
+    (userInfo && userInfo.user && userInfo.user.totalMindfulnessMinutes) ||
+    (userInfo && userInfo.totalMindfulnessMinutes) ||
+    0;
 
   // Para drag do menu
   const menuRef = React.useRef(null);
@@ -684,13 +695,13 @@ const MindfulnessHeader = () => {
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium text-white">Meta diária de mindfulness</span>
                 <span className="text-sm font-bold text-white glass-effect px-2 py-1 rounded-full">
-                  75%
+                  {`${dailyProgress.percentage ?? 0}%`}
                 </span>
               </div>
               <div className="progress-bar w-full bg-white bg-opacity-30 rounded-full h-3 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-1000 ease-out shadow-sm"
-                  style={{ width: '75%' }}
+                  style={{ width: `${dailyProgress.percentage ?? 0}%` }}
                 >
                   <div className="h-full w-full bg-white bg-opacity-30 animate-pulse"></div>
                 </div>
@@ -725,7 +736,7 @@ const MindfulnessHeader = () => {
             onTouchEnd={handleDragEnd}
           >
             {/* Header do menu */}
-            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-slate-800 dark:to-slate-700 cursor-grab active:cursor-grabbing select-none">
+            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-800 dark:to-blue-600 cursor-grab active:cursor-grabbing select-none">
               <div className="flex items-center gap-3">
                 <Leaf size={24} className="text-white" />
                 <h2 className="text-xl font-bold text-white">Menu</h2>
@@ -769,7 +780,9 @@ const MindfulnessHeader = () => {
             <div className="grid grid-cols-2 gap-3 mt-4">
               <div className="stat-card bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
                 <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                  {streak}
+                  {(userInfo && userInfo.user && userInfo.user.streakCount) ||
+                    (userInfo && userInfo.streakCount) ||
+                    0}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">
                   Dias seguidos
@@ -777,7 +790,7 @@ const MindfulnessHeader = () => {
               </div>
               <div className="stat-card bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm">
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  142
+                  {totalMindfulnessMinutes}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">
                   Min. totais
