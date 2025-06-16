@@ -26,8 +26,22 @@ const MindfulnessHeader = ({ onPremiumToggle }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
-  const [isPremium, setIsPremium] = useState(false);
   const { user: userInfo, isAuthenticated, logout } = useAuth();
+
+  const [isPremium, setIsPremium] = useState(() => {
+    const saved = localStorage.getItem('isPremium');
+    return saved === 'true';
+  });
+
+  // Se quiser atualizar o estado caso o localStorage mude em outro lugar:
+  useEffect(() => {
+    const handleStorage = () => {
+      const saved = localStorage.getItem('isPremium');
+      setIsPremium(saved === 'true');
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   // dailyProgress pode estar em userInfo.user.dailyProgress ou userInfo.dailyProgress
   const dailyProgress =

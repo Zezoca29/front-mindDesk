@@ -187,7 +187,6 @@
   /* Hero Section */
   .hero {
     padding: 4rem 0;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: var(--color-white);
     text-align: center;
   }
@@ -230,10 +229,6 @@
     padding: 4rem 0;
   }
   
-  .bg-light {
-    background-color: var(--color-light);
-  }
-  
   .section-header {
     text-align: center;
     max-width: 800px;
@@ -260,7 +255,7 @@
   }
   
   .section-description {
-    color: var(--color-secondary);
+    color: white;
     font-size: 1.125rem;
   }
   
@@ -297,11 +292,11 @@
   .feature-title {
     font-size: 1.25rem;
     margin-bottom: 0.5rem;
-    color: var(--color-dark);
+    color: white;
   }
   
   .feature-description {
-    color: var(--color-secondary);
+    color: white;
   }
   
   /* Cards Grid */
@@ -462,7 +457,6 @@
   
   /* CTA Section */
   .cta {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: var(--color-white);
     padding: 4rem 0;
     text-align: center;
@@ -498,7 +492,6 @@
   
   /* Footer */
   .footer {
-    background-color: var(--color-dark);
     color: var(--color-gray-light);
     padding: 3rem 0;
   }

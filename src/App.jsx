@@ -164,7 +164,7 @@ function HomePage() {
       <Navbar />
       {/* Hero Section */}
       <section className="hero">
-        <div className="container">
+        <div className="container-home">
           <div className="hero-content">
             <h1 className="hero-title">
               <span>Controle Sua Mente</span>

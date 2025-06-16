@@ -17,10 +17,30 @@ export default function MindfulnessApp() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streak, setStreak] = useState(12);
-  const [showPremiumScreen, setShowPremiumScreen] = useState(false);
 
-  // Função para alternar a tela premium
-  const handleToggle = () => {
+  // Inicializa o estado lendo do localStorage
+  const [isPremium, setIsPremium] = useState(() => {
+    const saved = localStorage.getItem('isPremium');
+    return saved === 'true';
+  });
+
+  const [showPremiumScreen, setShowPremiumScreen] = useState(() => {
+    const saved = localStorage.getItem('showPremiumScreen');
+    return saved === 'true';
+  });
+
+  // Sempre que isPremium mudar, salva no localStorage
+  useEffect(() => {
+    localStorage.setItem('isPremium', isPremium);
+  }, [isPremium]);
+
+  // Sempre que showPremiumScreen mudar, salva no localStorage
+  useEffect(() => {
+    localStorage.setItem('showPremiumScreen', showPremiumScreen);
+  }, [showPremiumScreen]);
+
+  const handlePremiumToggle = () => {
+    setIsPremium((prev) => !prev);
     setShowPremiumScreen((prev) => !prev);
   };
 
@@ -675,12 +695,11 @@ export default function MindfulnessApp() {
       <button onClick={() => setShowPremiumScreen(false)}>Voltar</button>
     </div>
   );
-
-// ...existing code...
-return (
+  // Renderizar o conteúdo principal do aplicativo
+  return (
     <div className="app-container">
       {/* Cabeçalho do Aplicativo */}
-      <MindfulnessHeader onPremiumToggle={() => setShowPremiumScreen(true)} />
+      <MindfulnessHeader onPremiumToggle={handlePremiumToggle} />
       {/* Conteúdo Principal */}
       <main className="main-content">
         {showPremiumScreen ? (
