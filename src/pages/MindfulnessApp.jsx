@@ -3,6 +3,7 @@ import { Leaf, BookOpen, Heart, Wind, Activity, Menu, Clock, Moon, Sun, Cloud, V
 import './mindfulnessApp.css';
 import MindfulnessHeader from './MindfulnessAppHeader';
 import { LogOut, Settings, User, X, Bell, ChevronRight, BarChart3, Share2, Sparkles, Award } from 'lucide-react';
+import PremiumScreen from './PremiumApp';
 
 export default function MindfulnessApp() {
   const [breathCount, setBreathCount] = useState(4);
@@ -687,14 +688,6 @@ export default function MindfulnessApp() {
     }
   };
 
-  // Exemplo de tela premium
-  const PremiumScreen = () => (
-    <div className="premium-screen">
-      <h2>Bem-vindo ao Premium!</h2>
-      <p>Conteúdo exclusivo para assinantes.</p>
-      <button onClick={() => setShowPremiumScreen(false)}>Voltar</button>
-    </div>
-  );
   // Renderizar o conteúdo principal do aplicativo
   return (
     <div className="app-container">
