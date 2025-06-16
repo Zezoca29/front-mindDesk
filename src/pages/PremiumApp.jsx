@@ -1,436 +1,502 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Clock, 
-  Brain, 
-  Target, 
-  Users, 
-  Play, 
-  Pause, 
-  BarChart3, 
-  BookOpen, 
-  Zap, 
-  Award, 
-  Calendar,
-  Timer,
-  TrendingUp,
-  MessageCircle,
-  Video,
-  Trophy,
-  Sparkles,
-  ChevronRight
+import {
+    Clock,
+    Brain,
+    Target,
+    Users,
+    Play,
+    Pause,
+    BarChart3,
+    BookOpen,
+    Zap,
+    Award,
+    Calendar,
+    Timer,
+    TrendingUp,
+    MessageCircle,
+    Video,
+    Trophy,
+    Sparkles,
+    ChevronRight
 } from 'lucide-react';
+import './mindfulnessApp.css';
 
 const PremiumScreen = () => {
-  const [activeModule, setActiveModule] = useState('productivity');
-  const [pomodoroTime, setPomodoroTime] = useState(25 * 60); // 25 minutos
-  const [isPomodoroActive, setIsPomodoroActive] = useState(false);
-  const [currentStreak, setCurrentStreak] = useState(7);
-  const [weeklyFocus, setWeeklyFocus] = useState(847); // minutos
-  const [studyProgress, setStudyProgress] = useState(68);
-  const [habits, setHabits] = useState([
-    { id: 1, name: 'Meditar 10 min', streak: 12, completed: true },
-    { id: 2, name: 'Ler 30 páginas', streak: 8, completed: false },
-    { id: 3, name: 'Exercitar-se', streak: 5, completed: true }
-  ]);
-  const [mindCoins, setMindCoins] = useState(342);
-  
-  const pomodoroIntervalRef = useRef(null);
+    const [activeModule, setActiveModule] = useState('productivity');
+    const [pomodoroTime, setPomodoroTime] = useState(25 * 60); // 25 minutos
+    const [isPomodoroActive, setIsPomodoroActive] = useState(false);
+    const [currentStreak, setCurrentStreak] = useState(7);
+    const [weeklyFocus, setWeeklyFocus] = useState(847); // minutos
+    const [studyProgress, setStudyProgress] = useState(68);
+    const [habits, setHabits] = useState([
+        { id: 1, name: 'Meditar 10 min', streak: 12, completed: true },
+        { id: 2, name: 'Ler 30 páginas', streak: 8, completed: false },
+        { id: 3, name: 'Exercitar-se', streak: 5, completed: true }
+    ]);
+    const [mindCoins, setMindCoins] = useState(342);
 
-  useEffect(() => {
-    if (isPomodoroActive && pomodoroTime > 0) {
-      pomodoroIntervalRef.current = setInterval(() => {
-        setPomodoroTime(prev => {
-          if (prev <= 1) {
-            setIsPomodoroActive(false);
-            // Aqui seria tocado um som de finalização
-            return 25 * 60; // Reset para 25 minutos
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (pomodoroIntervalRef.current) {
-        clearInterval(pomodoroIntervalRef.current);
-      }
+    const pomodoroIntervalRef = useRef(null);
+
+    useEffect(() => {
+        if (isPomodoroActive && pomodoroTime > 0) {
+            pomodoroIntervalRef.current = setInterval(() => {
+                setPomodoroTime(prev => {
+                    if (prev <= 1) {
+                        setIsPomodoroActive(false);
+                        // Aqui seria tocado um som de finalização
+                        return 25 * 60; // Reset para 25 minutos
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => {
+            if (pomodoroIntervalRef.current) {
+                clearInterval(pomodoroIntervalRef.current);
+            }
+        };
+    }, [isPomodoroActive, pomodoroTime]);
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     };
-  }, [isPomodoroActive, pomodoroTime]);
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
+    const togglePomodoro = () => {
+        setIsPomodoroActive(!isPomodoroActive);
+    };
 
-  const togglePomodoro = () => {
-    setIsPomodoroActive(!isPomodoroActive);
-  };
+    const toggleHabit = (habitId) => {
+        setHabits(habits.map(habit =>
+            habit.id === habitId
+                ? { ...habit, completed: !habit.completed }
+                : habit
+        ));
+    };
 
-  const toggleHabit = (habitId) => {
-    setHabits(habits.map(habit => 
-      habit.id === habitId 
-        ? { ...habit, completed: !habit.completed }
-        : habit
-    ));
-  };
-
-  const renderProductivityModule = () => (
-    <div className="premium-module-content">
-      <div className="module-header">
-        <div className="module-icon">
-          <Clock size={32} />
-        </div>
-        <div>
-          <h2>Produtividade Avançada</h2>
-          <p>Transforme seu foco em resultados</p>
-        </div>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-number">{currentStreak}</div>
-          <div className="stat-label">Dias de Streak</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">{Math.floor(weeklyFocus / 60)}h {weeklyFocus % 60}m</div>
-          <div className="stat-label">Foco Semanal</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">89%</div>
-          <div className="stat-label">Eficiência</div>
-        </div>
-      </div>
-
-      <div className="pomodoro-section">
-        <div className="pomodoro-timer">
-          <div className="timer-circle">
-            <div className="timer-display">{formatTime(pomodoroTime)}</div>
-            <div className="timer-label">Pomodoro</div>
-          </div>
-        </div>
-        
-        <div className="pomodoro-controls">
-          <button 
-            className={`pomodoro-btn ${isPomodoroActive ? 'active' : ''}`}
-            onClick={togglePomodoro}
-          >
-            {isPomodoroActive ? <Pause size={20} /> : <Play size={20} />}
-            {isPomodoroActive ? 'Pausar' : 'Iniciar'}
-          </button>
-        </div>
-
-        <div className="preset-options">
-          <button onClick={() => setPomodoroTime(25 * 60)}>25 min</button>
-          <button onClick={() => setPomodoroTime(52 * 60)}>52 min</button>
-          <button onClick={() => setPomodoroTime(90 * 60)}>90 min</button>
-        </div>
-      </div>
-
-      <div className="feature-list">
-        <div className="feature-item">
-          <BarChart3 size={24} />
-          <div>
-            <h4>Relatórios Semanais</h4>
-            <p>Insights detalhados sobre sua produtividade</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-        <div className="feature-item">
-          <Zap size={24} />
-          <div>
-            <h4>Modo Foco</h4>
-            <p>Bloqueie distrações durante o trabalho</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderLearningModule = () => (
-    <div className="premium-module-content">
-      <div className="module-header">
-        <div className="module-icon">
-          <Brain size={32} />
-        </div>
-        <div>
-          <h2>Learning Lab</h2>
-          <p>Estudo inteligente e eficiente</p>
-        </div>
-      </div>
-
-      <div className="progress-card">
-        <div className="progress-header">
-          <h3>Progresso Atual</h3>
-          <span className="progress-percentage">{studyProgress}%</span>
-        </div>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill" 
-            style={{ width: `${studyProgress}%` }}
-          ></div>
-        </div>
-        <p>Curso: Desenvolvimento Pessoal</p>
-      </div>
-
-      <div className="study-stats">
-        <div className="study-stat">
-          <div className="stat-icon">
-            <BookOpen size={24} />
-          </div>
-          <div>
-            <div className="stat-number">127</div>
-            <div className="stat-label">Cards Revisados</div>
-          </div>
-        </div>
-        <div className="study-stat">
-          <div className="stat-icon">
-            <TrendingUp size={24} />
-          </div>
-          <div>
-            <div className="stat-number">92%</div>
-            <div className="stat-label">Taxa de Acerto</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="feature-list">
-        <div className="feature-item">
-          <Zap size={24} />
-          <div>
-            <h4>Flashcards SRS</h4>
-            <p>Repetição espaçada para melhor retenção</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-        <div className="feature-item">
-          <Calendar size={24} />
-          <div>
-            <h4>Planejador de Estudos</h4>
-            <p>Organize seu cronograma de aprendizado</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-        <div className="feature-item">
-          <Target size={24} />
-          <div>
-            <h4>Quizzes Inteligentes</h4>
-            <p>Testes adaptativos baseados em suas notas</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderHabitsModule = () => (
-    <div className="premium-module-content">
-      <div className="module-header">
-        <div className="module-icon">
-          <Target size={32} />
-        </div>
-        <div>
-          <h2>Construtor de Hábitos</h2>
-          <p>Transforme pequenas ações em grandes mudanças</p>
-        </div>
-      </div>
-
-      <div className="coins-display">
-        <div className="coins-icon">
-          <Sparkles size={24} />
-        </div>
-        <div className="coins-amount">{mindCoins} MindCoins</div>
-      </div>
-
-      <div className="habits-list">
-        {habits.map(habit => (
-          <div key={habit.id} className="habit-item">
-            <div className="habit-info">
-              <h4>{habit.name}</h4>
-              <div className="habit-streak">
-                <Award size={16} />
-                {habit.streak} dias consecutivos
-              </div>
+    const renderProductivityModule = () => (
+        <div className="premium-module-content">
+            <div className="module-header">
+                <div className="module-icon">
+                    <Clock size={32} />
+                </div>
+                <div>
+                    <h2>Produtividade Avançada</h2>
+                    <p>Transforme seu foco em resultados</p>
+                </div>
             </div>
-            <button 
-              className={`habit-toggle ${habit.completed ? 'completed' : ''}`}
-              onClick={() => toggleHabit(habit.id)}
-            >
-              {habit.completed ? '✓' : '○'}
+
+            <div className="stats-grid">
+                <div className="stat-card">
+                    <div className="stat-number">{currentStreak}</div>
+                    <div className="stat-label">Dias de Streak</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-number">{Math.floor(weeklyFocus / 60)}h {weeklyFocus % 60}m</div>
+                    <div className="stat-label">Foco Semanal</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-number">89%</div>
+                    <div className="stat-label">Eficiência</div>
+                </div>
+            </div>
+
+            <div className="pomodoro-section">
+                <div className="pomodoro-timer">
+                    <div className="timer-circle">
+                        <div className="timer-display">{formatTime(pomodoroTime)}</div>
+                        <div className="timer-label">Pomodoro</div>
+                    </div>
+                </div>
+
+                <div className="pomodoro-controls">
+                    <button
+                        className={`pomodoro-btn ${isPomodoroActive ? 'active' : ''}`}
+                        onClick={togglePomodoro}
+                    >
+                        {isPomodoroActive ? <Pause size={20} /> : <Play size={20} />}
+                        {isPomodoroActive ? 'Pausar' : 'Iniciar'}
+                    </button>
+                </div>
+
+                <div className="preset-options">
+                    <button onClick={() => setPomodoroTime(25 * 60)}>25 min</button>
+                    <button onClick={() => setPomodoroTime(52 * 60)}>52 min</button>
+                    <button onClick={() => setPomodoroTime(90 * 60)}>90 min</button>
+                </div>
+            </div>
+
+            <div className="feature-list">
+                <div className="feature-item">
+                    <BarChart3 size={24} />
+                    <div>
+                        <h4>Relatórios Semanais</h4>
+                        <p>Insights detalhados sobre sua produtividade</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+                <div className="feature-item">
+                    <Zap size={24} />
+                    <div>
+                        <h4>Modo Foco</h4>
+                        <p>Bloqueie distrações durante o trabalho</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+            </div>
+        </div>
+    );
+
+    const renderLearningModule = () => (
+        <div className="premium-module-content">
+            <div className="module-header">
+                <div className="module-icon">
+                    <Brain size={32} />
+                </div>
+                <div>
+                    <h2>Learning Lab</h2>
+                    <p>Estudo inteligente e eficiente</p>
+                </div>
+            </div>
+
+            <div className="progress-card">
+                <div className="progress-header">
+                    <h3>Progresso Atual</h3>
+                    <span className="progress-percentage">{studyProgress}%</span>
+                </div>
+                <div className="progress-bar">
+                    <div
+                        className="progress-fill"
+                        style={{ width: `${studyProgress}%` }}
+                    ></div>
+                </div>
+                <p>Curso: Desenvolvimento Pessoal</p>
+            </div>
+
+            <div className="study-stats">
+                <div className="study-stat">
+                    <div className="stat-icon">
+                        <BookOpen size={24} />
+                    </div>
+                    <div>
+                        <div className="stat-number">127</div>
+                        <div className="stat-label">Cards Revisados</div>
+                    </div>
+                </div>
+                <div className="study-stat">
+                    <div className="stat-icon">
+                        <TrendingUp size={24} />
+                    </div>
+                    <div>
+                        <div className="stat-number">92%</div>
+                        <div className="stat-label">Taxa de Acerto</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="feature-list">
+                <div className="feature-item">
+                    <Zap size={24} />
+                    <div>
+                        <h4>Flashcards SRS</h4>
+                        <p>Repetição espaçada para melhor retenção</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+                <div className="feature-item">
+                    <Calendar size={24} />
+                    <div>
+                        <h4>Planejador de Estudos</h4>
+                        <p>Organize seu cronograma de aprendizado</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+                <div className="feature-item">
+                    <Target size={24} />
+                    <div>
+                        <h4>Quizzes Inteligentes</h4>
+                        <p>Testes adaptativos baseados em suas notas</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+            </div>
+        </div>
+    );
+
+    const renderHabitsModule = () => (
+        <div className="premium-module-content">
+            <div className="module-header">
+                <div className="module-icon">
+                    <Target size={32} />
+                </div>
+                <div>
+                    <h2>Construtor de Hábitos</h2>
+                    <p>Transforme pequenas ações em grandes mudanças</p>
+                </div>
+            </div>
+
+            <div className="coins-display">
+                <div className="coins-icon">
+                    <Sparkles size={24} />
+                </div>
+                <div className="coins-amount">{mindCoins} MindCoins</div>
+            </div>
+
+            <div className="habits-list">
+                {habits.map(habit => (
+                    <div key={habit.id} className="habit-item">
+                        <div className="habit-info">
+                            <h4>{habit.name}</h4>
+                            <div className="habit-streak">
+                                <Award size={16} />
+                                {habit.streak} dias consecutivos
+                            </div>
+                        </div>
+                        <button
+                            className={`habit-toggle ${habit.completed ? 'completed' : ''}`}
+                            onClick={() => toggleHabit(habit.id)}
+                        >
+                            {habit.completed ? '✓' : '○'}
+                        </button>
+                    </div>
+                ))}
+            </div>
+
+            <button className="add-habit-btn">
+                + Adicionar Novo Hábito
             </button>
-          </div>
-        ))}
-      </div>
 
-      <button className="add-habit-btn">
-        + Adicionar Novo Hábito
-      </button>
+            <div className="feature-list">
+                <div className="feature-item">
+                    <Calendar size={24} />
+                    <div>
+                        <h4>Calendário de Streaks</h4>
+                        <p>Visualize seu progresso diário</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+                <div className="feature-item">
+                    <Trophy size={24} />
+                    <div>
+                        <h4>Recompensas</h4>
+                        <p>Ganhe MindCoins e desbloqueie conquistas</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+            </div>
+        </div>
+    );
 
-      <div className="feature-list">
-        <div className="feature-item">
-          <Calendar size={24} />
-          <div>
-            <h4>Calendário de Streaks</h4>
-            <p>Visualize seu progresso diário</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-        <div className="feature-item">
-          <Trophy size={24} />
-          <div>
-            <h4>Recompensas</h4>
-            <p>Ganhe MindCoins e desbloqueie conquistas</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-      </div>
-    </div>
-  );
+    const renderCommunityModule = () => (
+        <div className="premium-module-content">
+            <div className="module-header">
+                <div className="module-icon">
+                    <Users size={32} />
+                </div>
+                <div>
+                    <h2>Clube Mind Desk</h2>
+                    <p>Conecte-se, aprenda e cresça junto</p>
+                </div>
+            </div>
 
-  const renderCommunityModule = () => (
-    <div className="premium-module-content">
-      <div className="module-header">
-        <div className="module-icon">
-          <Users size={32} />
-        </div>
-        <div>
-          <h2>Clube Mind Desk</h2>
-          <p>Conecte-se, aprenda e cresça junto</p>
-        </div>
-      </div>
+            <div className="community-stats">
+                <div className="community-stat">
+                    <div className="stat-number">1,247</div>
+                    <div className="stat-label">Membros Ativos</div>
+                </div>
+                <div className="community-stat">
+                    <div className="stat-number">23</div>
+                    <div className="stat-label">Salas de Chat</div>
+                </div>
+                <div className="community-stat">
+                    <div className="stat-number">8</div>
+                    <div className="stat-label">Lives Mensais</div>
+                </div>
+            </div>
 
-      <div className="community-stats">
-        <div className="community-stat">
-          <div className="stat-number">1,247</div>
-          <div className="stat-label">Membros Ativos</div>
-        </div>
-        <div className="community-stat">
-          <div className="stat-number">23</div>
-          <div className="stat-label">Salas de Chat</div>
-        </div>
-        <div className="community-stat">
-          <div className="stat-number">8</div>
-          <div className="stat-label">Lives Mensais</div>
-        </div>
-      </div>
+            <div className="current-challenge">
+                <div className="challenge-header">
+                    <h3>Desafio Atual</h3>
+                    <div className="challenge-badge">30 Dias Pomodoro</div>
+                </div>
+                <div className="challenge-progress">
+                    <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: '40%' }}></div>
+                    </div>
+                    <p>12 de 30 dias completados</p>
+                </div>
+            </div>
 
-      <div className="current-challenge">
-        <div className="challenge-header">
-          <h3>Desafio Atual</h3>
-          <div className="challenge-badge">30 Dias Pomodoro</div>
+            <div className="feature-list">
+                <div className="feature-item">
+                    <MessageCircle size={24} />
+                    <div>
+                        <h4>Salas Temáticas</h4>
+                        <p>Produtividade, Estudo, Relaxamento</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+                <div className="feature-item">
+                    <Video size={24} />
+                    <div>
+                        <h4>Lives e Workshops</h4>
+                        <p>Sessões ao vivo com especialistas</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+                <div className="feature-item">
+                    <Target size={24} />
+                    <div>
+                        <h4>Desafios Gamificados</h4>
+                        <p>Compete e ganhe badges exclusivos</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+                <div className="feature-item">
+                    <Users size={24} />
+                    <div>
+                        <h4>Mentoria em Grupo</h4>
+                        <p>Sprints quinzenais com coaches</p>
+                    </div>
+                    <ChevronRight size={20} />
+                </div>
+            </div>
         </div>
-        <div className="challenge-progress">
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: '40%' }}></div>
-          </div>
-          <p>12 de 30 dias completados</p>
-        </div>
-      </div>
+    );
 
-      <div className="feature-list">
-        <div className="feature-item">
-          <MessageCircle size={24} />
-          <div>
-            <h4>Salas Temáticas</h4>
-            <p>Produtividade, Estudo, Relaxamento</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-        <div className="feature-item">
-          <Video size={24} />
-          <div>
-            <h4>Lives e Workshops</h4>
-            <p>Sessões ao vivo com especialistas</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-        <div className="feature-item">
-          <Target size={24} />
-          <div>
-            <h4>Desafios Gamificados</h4>
-            <p>Compete e ganhe badges exclusivos</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-        <div className="feature-item">
-          <Users size={24} />
-          <div>
-            <h4>Mentoria em Grupo</h4>
-            <p>Sprints quinzenais com coaches</p>
-          </div>
-          <ChevronRight size={20} />
-        </div>
-      </div>
-    </div>
-  );
+    const renderModuleContent = () => {
+        switch (activeModule) {
+            case 'productivity':
+                return renderProductivityModule();
+            case 'learning':
+                return renderLearningModule();
+            case 'habits':
+                return renderHabitsModule();
+            case 'community':
+                return renderCommunityModule();
+            default:
+                return renderProductivityModule();
+        }
+    };
 
-  const renderModuleContent = () => {
-    switch (activeModule) {
-      case 'productivity':
-        return renderProductivityModule();
-      case 'learning':
-        return renderLearningModule();
-      case 'habits':
-        return renderHabitsModule();
-      case 'community':
-        return renderCommunityModule();
-      default:
-        return renderProductivityModule();
-    }
-  };
+    return (
+        <main className="main-content">
+            {renderModuleContent()}
 
-  return (
-    <div className="premium-container">
-      <div className="premium-header">
-        <div className="premium-badge">
-          <Sparkles size={20} />
-          <span>PREMIUM</span>
-        </div>
-        <h1>Mind Desk Pro</h1>
-        <p>Desbloqueie todo seu potencial</p>
-      </div>
+            <div className="feature-grid">
+                <div
+                    className={`feature-grid-item ${activeModule === 'productivity' ? 'active' : ''}`}
+                    onClick={() => setActiveModule('productivity')}
+                >
+                    <Clock size={24} />
+                    <span>Produtividade</span>
+                </div>
+                <div
+                    className={`feature-grid-item ${activeModule === 'learning' ? 'active' : ''}`}
+                    onClick={() => setActiveModule('learning')}
+                >
+                    <Brain size={24} />
+                    <span>Learning</span>
+                </div>
+                <div
+                    className={`feature-grid-item ${activeModule === 'habits' ? 'active' : ''}`}
+                    onClick={() => setActiveModule('habits')}
+                >
+                    <Target size={24} />
+                    <span>Hábitos</span>
+                </div>
+                <div
+                    className={`feature-grid-item ${activeModule === 'community' ? 'active' : ''}`}
+                    onClick={() => setActiveModule('community')}
+                >
+                    <Users size={24} />
+                    <span>Comunidade</span>
+                </div>
+            </div>
 
-      <main className="premium-main">
-        {renderModuleContent()}
-      </main>
-
-      <div className="premium-nav">
-        <div
-          className={`nav-item ${activeModule === 'productivity' ? 'active' : ''}`}
-          onClick={() => setActiveModule('productivity')}
-        >
-          <Clock size={24} />
-          <span>Produtividade</span>
-        </div>
-        <div
-          className={`nav-item ${activeModule === 'learning' ? 'active' : ''}`}
-          onClick={() => setActiveModule('learning')}
-        >
-          <Brain size={24} />
-          <span>Learning</span>
-        </div>
-        <div
-          className={`nav-item ${activeModule === 'habits' ? 'active' : ''}`}
-          onClick={() => setActiveModule('habits')}
-        >
-          <Target size={24} />
-          <span>Hábitos</span>
-        </div>
-        <div
-          className={`nav-item ${activeModule === 'community' ? 'active' : ''}`}
-          onClick={() => setActiveModule('community')}
-        >
-          <Users size={24} />
-          <span>Comunidade</span>
-        </div>
-      </div>
-
-      <style jsx>{`
+            <style jsx>{`
         .premium-container {
           min-height: 100vh;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          position: relative;
+          overflow-x: hidden;
+        }
+
+        .animated-background {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+          overflow: hidden;
+        }
+
+        .floating-shapes {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+        }
+
+        .shape {
+          position: absolute;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          animation: float 20s infinite linear;
+        }
+
+        .shape-1 {
+          width: 80px;
+          height: 80px;
+          top: 10%;
+          left: 10%;
+          animation-duration: 25s;
+          animation-delay: 0s;
+        }
+
+        .shape-2 {
+          width: 120px;
+          height: 120px;
+          top: 70%;
+          right: 10%;
+          animation-duration: 30s;
+          animation-delay: -5s;
+        }
+
+        .shape-3 {
+          width: 60px;
+          height: 60px;
+          top: 40%;
+          left: 80%;
+          animation-duration: 35s;
+          animation-delay: -10s;
+        }
+
+        .shape-4 {
+          width: 100px;
+          height: 100px;
+          top: 20%;
+          right: 30%;
+          animation-duration: 28s;
+          animation-delay: -15s;
+        }
+
+        .shape-5 {
+          width: 70px;
+          height: 70px;
+          top: 80%;
+          left: 30%;
+          animation-duration: 32s;
+          animation-delay: -20s;
+        }
+
+        @keyframes float {
+          0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+          50% { transform: translateY(-100px) rotate(180deg); opacity: 0.3; }
+          100% { transform: translateY(0px) rotate(360deg); opacity: 0.7; }
         }
 
         .premium-header {
@@ -438,6 +504,8 @@ const PremiumScreen = () => {
           padding: 2rem 1rem;
           background: rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(10px);
+          position: relative;
+          z-index: 10;
         }
 
         .premium-badge {
@@ -469,9 +537,15 @@ const PremiumScreen = () => {
         }
 
         .premium-main {
-          padding: 2rem 1rem;
-          max-width: 800px;
+          position: relative;
+          z-index: 10;
+          padding: 2rem 0;
+        }
+
+        .main-container {
+          max-width: 50rem;
           margin: 0 auto;
+          padding: 0 1rem;
         }
 
         .premium-module-content {
@@ -480,6 +554,8 @@ const PremiumScreen = () => {
           border-radius: 20px;
           padding: 2rem;
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(10px);
+          width: 100%;
         }
 
         .module-header {
@@ -894,7 +970,6 @@ const PremiumScreen = () => {
           
           .premium-main {
             padding: 1rem;
-            margin-bottom: 100px;
           }
           
           .premium-module-content {
@@ -910,9 +985,18 @@ const PremiumScreen = () => {
             font-size: 2rem;
           }
         }
+          
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
       `}</style>
-    </div>
-  );
+        </main>
+    );
 };
 
 export default PremiumScreen;
