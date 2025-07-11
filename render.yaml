@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: minddesk-frontend
+    env: node
+    buildCommand: chmod +x render-build.sh && ./render-build.sh
+    startCommand: npm run preview
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: VITE_API_HABITS_LIST
+        value: https://221549b67d8a.ngrok-free.app/api/habits
+      - key: VITE_API_HABITS_GET_LIST
+        value: https://221549b67d8a.ngrok-free.app/api/habits/get
+      - key: VITE_API_AUTH_LOGIN
+        value: https://221549b67d8a.ngrok-free.app/api/auth/login
+      - key: VITE_API_AUTH_REGISTER
+        value: https://221549b67d8a.ngrok-free.app/api/auth/register
+      - key: VITE_API_USER_ME
+        value: https://221549b67d8a.ngrok-free.app/api/user/me
+      - key: VITE_API_PAYMENTS_CREATE_WITH_SIGNUP
+        value: https://221549b67d8a.ngrok-free.app/api/payments/create-with-signup
+      - key: VITE_API_PAYMENTS_CHECK
+        value: https://221549b67d8a.ngrok-free.app/api/payments/check 

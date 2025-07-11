@@ -1,0 +1,20 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_API_HABITS_LIST": "https://221549b67d8a.ngrok-free.app/api/habits",
+    "VITE_API_HABITS_GET_LIST": "https://221549b67d8a.ngrok-free.app/api/habits/get",
+    "VITE_API_AUTH_LOGIN": "https://221549b67d8a.ngrok-free.app/api/auth/login",
+    "VITE_API_AUTH_REGISTER": "https://221549b67d8a.ngrok-free.app/api/auth/register",
+    "VITE_API_USER_ME": "https://221549b67d8a.ngrok-free.app/api/user/me",
+    "VITE_API_PAYMENTS_CREATE_WITH_SIGNUP": "https://221549b67d8a.ngrok-free.app/api/payments/create-with-signup",
+    "VITE_API_PAYMENTS_CHECK": "https://221549b67d8a.ngrok-free.app/api/payments/check"
+  }
+} 

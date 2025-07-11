@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true, // Bind to 0.0.0.0 for production
+    port: process.env.PORT || 5173, // Use PORT from environment or default to 5173
     proxy: {
       '/api': {
         target: 'https://221549b67d8a.ngrok-free.app',
@@ -15,5 +17,9 @@ export default defineConfig({
         }
       }
     }
+  },
+  preview: {
+    host: true,
+    port: process.env.PORT || 5173
   }
 })
