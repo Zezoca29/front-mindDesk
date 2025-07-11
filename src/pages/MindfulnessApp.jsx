@@ -1,9 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
-import { Leaf, BookOpen, Heart, Wind, Activity, Menu, Clock, Moon, Sun, Cloud, VolumeX } from 'lucide-react';
+import { Leaf, Heart, Wind, Activity, Menu, Moon, Sun, Cloud, VolumeX } from 'lucide-react';
 import './mindfulnessApp.css';
 import MindfulnessHeader from './MindfulnessAppHeader';
-import { LogOut, Settings, User, X, Bell, ChevronRight, BarChart3, Share2, Sparkles, Award } from 'lucide-react';
+import { LogOut, Settings, User, X, Bell, Share2 } from 'lucide-react';
 import PremiumScreen from './PremiumApp';
+import { useAuth } from './contexts/AuthContext';
+import {
+  Clock,
+  Brain,
+  Target,
+  Users,
+  Play,
+  Pause,
+  BarChart3,
+  BookOpen,
+  Zap,
+  Award,
+  Calendar,
+  Timer,
+  TrendingUp,
+  MessageCircle,
+  Video,
+  Trophy,
+  Sparkles,
+  ChevronRight
+} from 'lucide-react';
+import './Premium.css'
 
 export default function MindfulnessApp() {
   const [breathCount, setBreathCount] = useState(4);
@@ -17,7 +39,531 @@ export default function MindfulnessApp() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [activeModule, setActiveModule] = useState('productivity');
+  const [pomodoroTime, setPomodoroTime] = useState(25 * 60); // 25 minutos
+  const [isPomodoroActive, setIsPomodoroActive] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState(7);
+  const [weeklyFocus, setWeeklyFocus] = useState(847); // minutos
+  const [studyProgress, setStudyProgress] = useState(68);
+  const [newHabitName, setNewHabitName] = useState('');
+  const [mindCoins, setMindCoins] = useState(342);
+  const [showHabitForm, setShowHabitForm] = useState(false);
+  const [newHabitTime, setNewHabitTime] = useState('');
+  const [newHabitDescription, setNewHabitDescription] = useState('');
+  const [selectedHabit, setSelectedHabit] = useState(null);
+  const [habitsJsonData, setHabitsJsonData] = useState([]);
+
+
+  const pomodoroIntervalRef = useRef(null);
   const [streak, setStreak] = useState(12);
+  // Exemplo de tarefas para estatísticas de produtividade
+  const [tasks, setTasks] = useState([
+    { id: 1, name: 'Estudar React', completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) }, // 2 dias atrás
+    { id: 2, name: 'Meditar', completedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) }, // 5 dias atrás
+    { id: 3, name: 'Ler livro', completedAt: null }, // não concluída
+    { id: 4, name: 'Fazer exercício', completedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) }, // 1 dia atrás
+  ]);
+
+  const weeklyTasksCompleted = getWeeklyTasksCompleted(tasks);
+
+  // Use proxy URLs for development to avoid CORS issues
+  const HABITS_API = import.meta.env.DEV ? '/api/habits' : import.meta.env.VITE_API_HABITS_LIST;
+  const GET_HABITS_API = import.meta.env.DEV ? '/api/habits/get' : import.meta.env.VITE_API_HABITS_GET_LIST;
+
+  const { user: userInfo, isAuthenticated, logout } = useAuth();
+
+  const addHabit = async () => {
+    if (!newHabitName.trim()) return;
+    try {
+      const habitData = {
+        habitName: newHabitName,
+        time: newHabitTime,
+        description: newHabitDescription,
+        user: userInfo?.user?.nome || userInfo?.nome || '', // Send the user's name
+      };
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      };
+
+      // Add ngrok header only when not using proxy
+      if (!import.meta.env.DEV) {
+        headers['ngrok-skip-browser-warning'] = 'true';
+      }
+
+      const res = await fetch(HABITS_API, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(habitData),
+      });
+      const created = await res.json();
+      setHabitsJsonData([created, ...habitsJsonData]); // ✅ Update habitsJsonData instead of habits
+      setNewHabitName('');
+      setNewHabitTime('');
+      setNewHabitDescription('');
+      setShowHabitForm(false);
+    } catch (e) {
+      // handle error
+    }
+  };
+
+   // Test function to check API connectivity
+  const testApiConnection = async () => {
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      };
+
+      // Add ngrok header only when not using proxy
+      if (!import.meta.env.DEV) {
+        headers['ngrok-skip-browser-warning'] = 'true';
+      }
+
+      const res = await fetch(GET_HABITS_API, {
+        method: 'GET',
+        headers,
+      });
+      
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('API connection failed:', error);
+      throw error;
+    }
+  };
+
+  const getHabitsAndLog = async () => {
+  try {
+    console.log('=== HABITS API DEBUG ===');
+    console.log('VITE_API_HABITS_LIST:', GET_HABITS_API);
+    console.log('Is ngrok URL:', GET_HABITS_API.includes('ngrok'));
+    console.log('Full URL:', new URL(GET_HABITS_API, window.location.origin).href);
+    console.log('Auth token:', localStorage.getItem('authToken') ? 'Present' : 'Missing');
+    console.log('========================');
+    
+    // Teste direto no navegador
+    console.log('🔗 Teste esta URL no navegador:', GET_HABITS_API);
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+    };
+
+    // Add ngrok header only when not using proxy
+    if (!import.meta.env.DEV) {
+      headers['ngrok-skip-browser-warning'] = 'true';
+    }
+
+    const res = await fetch(GET_HABITS_API, {
+      method: 'GET',
+      headers,
+    });
+    
+    console.log('Response status:', res.status);
+    console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+    
+    // Check if response is JSON
+    const contentType = res.headers.get('content-type');
+    console.log('Content-Type:', contentType);
+    
+    if (!res.ok) {
+      // Get the response text to see what error we're getting
+      const errorText = await res.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`HTTP error! status: ${res.status}, body: ${errorText.substring(0, 200)}`);
+    }
+    
+    // Check if response is actually JSON
+    if (!contentType || !contentType.includes('application/json')) {
+      const responseText = await res.text();
+      console.error('Response is not JSON:', responseText.substring(0, 500));
+      throw new Error(`Expected JSON but got: ${contentType}`);
+    }
+    
+    const data = await res.json();
+    console.log('Habits JSON:', data);
+    console.log('Number of habits:', Array.isArray(data) ? data.length : 'Not an array');
+    
+    setHabitsJsonData(data); // Salva o array direto
+  } catch (e) {
+    console.error('Error fetching habits:', e);
+    setHabitsJsonData([]);
+  }
+};
+
+  const toggleHabitAsync = async (habitId) => {
+    const habit = habitsJsonData.find(h => h._id === habitId || h.id === habitId); // ✅ Use habitsJsonData
+    if (!habit) return;
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      };
+
+      // Add ngrok header only when not using proxy
+      if (!import.meta.env.DEV) {
+        headers['ngrok-skip-browser-warning'] = 'true';
+      }
+
+      const res = await fetch(`${HABITS_API}/${habitId}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ completed: !habit.completed }),
+      });
+      const updated = await res.json();
+      setHabitsJsonData(habitsJsonData.map(h => (h._id === habitId || h.id === habitId) ? updated : h)); // ✅ Update habitsJsonData
+    } catch (e) {
+      // handle error
+    }
+  };
+
+  const deleteHabit = async (habitId) => {
+    try {
+      const headers = {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      };
+
+      // Add ngrok header only when not using proxy
+      if (!import.meta.env.DEV) {
+        headers['ngrok-skip-browser-warning'] = 'true';
+      }
+
+      await fetch(`${HABITS_API}/${habitId}`, {
+        method: 'DELETE',
+        headers,
+      });
+      setHabitsJsonData(habitsJsonData.filter(h => (h._id || h.id) !== habitId)); // ✅ Update habitsJsonData
+    } catch (e) {
+      // handle error
+    }
+  };
+
+  function getWeeklyTasksCompleted(tasks) {
+    const now = new Date();
+    const weekAgo = new Date();
+    weekAgo.setDate(now.getDate() - 7);
+
+    return tasks.filter(task =>
+      task.completedAt &&
+      new Date(task.completedAt) >= weekAgo &&
+      new Date(task.completedAt) <= now
+    ).length;
+  }
+
+
+  useEffect(() => {
+    if (isPomodoroActive && pomodoroTime > 0) {
+      pomodoroIntervalRef.current = setInterval(() => {
+        setPomodoroTime(prev => {
+          if (prev <= 1) {
+            setIsPomodoroActive(false);
+            // Aqui seria tocado um som de finalização
+            return 25 * 60; // Reset para 25 minutos
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (pomodoroIntervalRef.current) {
+        clearInterval(pomodoroIntervalRef.current);
+      }
+    };
+  }, [isPomodoroActive, pomodoroTime]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const togglePomodoro = () => {
+    setIsPomodoroActive(!isPomodoroActive);
+  };
+
+  const renderProductivityModule = () => (
+    <div className="premium-module-content">
+      <div className="module-header">
+        <div className="module-icon">
+          <Clock size={32} />
+        </div>
+        <div>
+          <h2>Produtividade Avançada</h2>
+          <p>Transforme seu foco em resultados</p>
+        </div>
+      </div>
+
+      <div className="pomodoro-section">
+        <div className="pomodoro-timer">
+          <div className="timer-circle">
+            <div className="timer-display">{formatTime(pomodoroTime)}</div>
+            <div className="timer-label">Pomodoro</div>
+          </div>
+        </div>
+
+        <div className="pomodoro-controls">
+          <button
+            className={`pomodoro-btn ${isPomodoroActive ? 'active' : ''}`}
+            onClick={togglePomodoro}
+          >
+            {isPomodoroActive ? <Pause size={20} /> : <Play size={20} />}
+            {isPomodoroActive ? 'Pausar' : 'Iniciar'}
+          </button>
+        </div>
+
+        <div className="preset-options">
+          <button onClick={() => setPomodoroTime(25 * 60)}>25 min</button>
+          <button onClick={() => setPomodoroTime(52 * 60)}>52 min</button>
+          <button onClick={() => setPomodoroTime(90 * 60)}>90 min</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderLearningModule = () => (
+    <div className="premium-module-content">
+      <div className="module-header">
+        <div className="module-icon">
+          <Brain size={32} />
+        </div>
+        <div>
+          <h2>Learning Lab</h2>
+          <p>Estudo inteligente e eficiente</p>
+        </div>
+      </div>
+
+      <div className="progress-card">
+        <div className="progress-header">
+          <h3>Progresso Atual</h3>
+          <span className="progress-percentage">{studyProgress}%</span>
+        </div>
+        <div className="progress-bar">
+          <div
+            className="progress-fill"
+            style={{ width: `${studyProgress}%` }}
+          ></div>
+        </div>
+        <p>Curso: Desenvolvimento Pessoal</p>
+      </div>
+
+      <div className="feature-list">
+        <div className="feature-item">
+          <Calendar size={24} />
+          <div>
+            <h4>Planejador de Estudos</h4>
+            <p>Organize seu cronograma de aprendizado</p>
+          </div>
+          <ChevronRight size={20} />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderHabitsModule = () => (
+    <div className="premium-module-content">
+      <div className="module-header">
+        <div className="module-icon">
+          <Target size={32} />
+        </div>
+        <div>
+          <h2>Construtor de Hábitos</h2>
+          <p>Transforme pequenas ações em grandes mudanças</p>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', margin: '16px 0' }}>
+        <button
+          className="fetch-habits-btn"
+          style={{ padding: '8px 16px', background: '#6c63ff', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+          onClick={getHabitsAndLog}
+        >
+          Buscar Hábitos
+        </button>
+      </div>
+
+      <div className="habits-list">
+        {habitsJsonData.length > 0 ? (
+          habitsJsonData.map((habit) => (
+            <div key={habit._id || habit.id} className="habit-item">
+              <div className="habit-info">
+                <h4>{habit.name || habit.habitName}</h4>
+                <div className="habit-streak">
+                  <Award size={16} />
+                  {habit.streak || 0} dias consecutivos
+                </div>
+              </div>
+              <button
+                className={`habit-toggle ${habit.completed ? 'completed' : ''}`}
+                onClick={() => toggleHabitAsync(habit._id || habit.id)}
+              >
+                {habit.completed ? '✓' : '○'}
+              </button>
+              <button
+                className="habit-delete-btn"
+                onClick={() => deleteHabit(habit._id || habit.id)}
+              >
+                🗑️
+              </button>
+            </div>
+          ))
+        ) : (
+          <div style={{ color: '#888', padding: 16 }}>
+            Nenhum hábito encontrado. Crie um novo ou tente novamente.
+          </div>
+        )}
+      </div>
+
+      {!showHabitForm ? (
+        <div className="add-habit-form">
+          <button
+            className="add-habit-btn"
+            onClick={() => setShowHabitForm(true)}
+          >
+            + Adicionar Novo Hábito
+          </button>
+        </div>
+      ) : (
+        <div className="add-habit-form">
+          <input
+            type="text"
+            value={newHabitName}
+            onChange={e => setNewHabitName(e.target.value)}
+            placeholder="Nome do hábito"
+          />
+          <input
+            type="time"
+            value={newHabitTime}
+            onChange={e => setNewHabitTime(e.target.value)}
+            placeholder="Horário (ex: 08:00)"
+          />
+          <input
+            type="text"
+            value={newHabitDescription}
+            onChange={e => setNewHabitDescription(e.target.value)}
+            placeholder="Descrição"
+          />
+          <button className="add-habit-btn" onClick={addHabit}>
+            Salvar Hábito
+          </button>
+          <button
+            className="cancel-habit-btn"
+            onClick={() => setShowHabitForm(false)}
+            style={{ marginLeft: 8 }}
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderCommunityModule = () => (
+    <div className="premium-module-content">
+      <div className="module-header">
+        <div className="module-icon">
+          <Users size={32} />
+        </div>
+        <div>
+          <h2>Clube Mind Desk</h2>
+          <p>Conecte-se, aprenda e cresça junto</p>
+        </div>
+      </div>
+
+      <div className="community-stats">
+        <div className="community-stat">
+          <div className="stat-number">1,247</div>
+          <div className="stat-label">Membros Ativos</div>
+        </div>
+        <div className="community-stat">
+          <div className="stat-number">23</div>
+          <div className="stat-label">Salas de Chat</div>
+        </div>
+        <div className="community-stat">
+          <div className="stat-number">8</div>
+          <div className="stat-label">Lives Mensais</div>
+        </div>
+      </div>
+
+      <div className="current-challenge">
+        <div className="challenge-header">
+          <h3>Desafio Atual</h3>
+          <div className="challenge-badge">30 Dias Pomodoro</div>
+        </div>
+        <div className="challenge-progress">
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: '40%' }}></div>
+          </div>
+          <p>12 de 30 dias completados</p>
+        </div>
+      </div>
+
+      <div className="feature-list">
+        <div className="feature-item">
+          <MessageCircle size={24} />
+          <div>
+            <h4>Salas Temáticas</h4>
+            <p>Produtividade, Estudo, Relaxamento</p>
+          </div>
+          <ChevronRight size={20} />
+        </div>
+        <div className="feature-item">
+          <Video size={24} />
+          <div>
+            <h4>Lives e Workshops</h4>
+            <p>Sessões ao vivo com especialistas</p>
+          </div>
+          <ChevronRight size={20} />
+        </div>
+        <div className="feature-item">
+          <Target size={24} />
+          <div>
+            <h4>Desafios Gamificados</h4>
+            <p>Compete e ganhe badges exclusivos</p>
+          </div>
+          <ChevronRight size={20} />
+        </div>
+        <div className="feature-item">
+          <Users size={24} />
+          <div>
+            <h4>Mentoria em Grupo</h4>
+            <p>Sprints quinzenais com coaches</p>
+          </div>
+          <ChevronRight size={20} />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderModuleContent = () => {
+    switch (activeModule) {
+      case 'productivity':
+        return renderProductivityModule();
+      case 'learning':
+        return renderLearningModule();
+      case 'habits':
+        return renderHabitsModule();
+      case 'community':
+        return renderCommunityModule();
+      default:
+        return renderProductivityModule();
+    }
+  };
+
+  const getSubscriptionStatus = () => {
+    if (userInfo) {
+      // Verifica formato { success: true, user: {...} }
+      if (userInfo.success && userInfo.user && userInfo.user.subscriptionStatus) {
+        return userInfo.user.subscriptionStatus;
+      }
+      // Verifica formato direto
+      else if (userInfo.subscriptionStatus) {
+        return userInfo.subscriptionStatus;
+      }
+    }
+    return 'free';
+  };
 
   // Inicializa o estado lendo do localStorage
   const [isPremium, setIsPremium] = useState(() => {
@@ -239,12 +785,6 @@ export default function MindfulnessApp() {
   const completeRelaxationSession = () => {
     stopRelaxationTechnique();
     // Aqui poderíamos adicionar uma notificação ou som de finalização
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   const changeMeditationSound = (sound) => {
@@ -695,15 +1235,15 @@ export default function MindfulnessApp() {
       <MindfulnessHeader onPremiumToggle={handlePremiumToggle} />
       {/* Conteúdo Principal */}
       <main className="main-content">
-        {showPremiumScreen ? (
-          <PremiumScreen />
+        {showPremiumScreen && isPremium && getSubscriptionStatus() !== 'free' ? (
+          renderModuleContent()
         ) : (
           renderContent()
         )}
       </main>
 
       {/* Grade de Recursos */}
-      {!showPremiumScreen && (
+      {(!showPremiumScreen || getSubscriptionStatus() === 'free') && (
         <div className="feature-grid">
           <div
             className={`feature-grid-item ${activeTab === 'breathing' ? 'active' : ''}`}
@@ -743,6 +1283,38 @@ export default function MindfulnessApp() {
               <BookOpen size={24} />
             </div>
             <span>Diário</span>
+          </div>
+        </div>
+      )}
+      {showPremiumScreen && isPremium && getSubscriptionStatus() !== 'free' && (
+        <div className="feature-grid">
+          <div
+            className={`feature-grid-item ${activeModule === 'productivity' ? 'active' : ''}`}
+            onClick={() => setActiveModule('productivity')}
+          >
+            <Clock size={24} />
+            <span>Produtividade</span>
+          </div>
+          <div
+            className={`feature-grid-item ${activeModule === 'learning' ? 'active' : ''}`}
+            onClick={() => setActiveModule('learning')}
+          >
+            <Brain size={24} />
+            <span>Learning</span>
+          </div>
+          <div
+            className={`feature-grid-item ${activeModule === 'habits' ? 'active' : ''}`}
+            onClick={() => setActiveModule('habits')}
+          >
+            <Target size={24} />
+            <span>Hábitos</span>
+          </div>
+          <div
+            className={`feature-grid-item ${activeModule === 'community' ? 'active' : ''}`}
+            onClick={() => setActiveModule('community')}
+          >
+            <Users size={24} />
+            <span>Comunidade</span>
           </div>
         </div>
       )}
